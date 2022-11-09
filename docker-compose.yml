@@ -15,7 +15,7 @@ services:
     build: ewm-stat
     container_name: ewm-stat
     depends_on:
-      - stat-db
+      - stats-db
     ports:
       - "9090:9090"
     environment:
