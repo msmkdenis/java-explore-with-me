@@ -19,6 +19,7 @@
 
 	<modules>
 		<module>ewm-main</module>
+		<module>ewm-stat</module>
 	</modules>
 
 	<properties>

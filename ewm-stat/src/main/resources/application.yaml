@@ -1,10 +1,10 @@
 server:
-  port: 8080
+  port: 9090
 
 spring:
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
@@ -12,12 +12,9 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm_main_db
+    url: jdbc:postgresql://localhost:5432/ewm_stat_db
     username: postgres
     password: root
-
-ewm-stat:
-  url: http://localhost:9090/hit
 
 ---
 spring:
@@ -27,6 +24,6 @@ spring:
 
   datasource:
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:ewm_server_db
+    url: jdbc:h2:mem:ewm_stat_db
     username: test
     password: test
