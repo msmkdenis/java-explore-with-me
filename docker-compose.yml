@@ -1,7 +1,7 @@
 version: '3.1'
 services:
 
-  stat-db:
+  stats-db:
     image: postgres:14-alpine
     container_name: db-ewm-stat
     ports:
@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
 
-  ewm-stat:
+  stats-server:
     build: ewm-stat
     container_name: ewm-stat
     depends_on:
