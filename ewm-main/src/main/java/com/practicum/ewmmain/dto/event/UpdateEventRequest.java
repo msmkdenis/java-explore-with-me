@@ -1,7 +1,5 @@
 package com.practicum.ewmmain.dto.event;
 
-import javax.validation.constraints.NotNull;
-
 public class UpdateEventRequest {
     private String annotation;
     private Long category;
