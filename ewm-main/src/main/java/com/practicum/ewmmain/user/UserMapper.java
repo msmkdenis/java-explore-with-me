@@ -6,6 +6,7 @@ import org.mapstruct.Named;
 @Mapper
 public interface UserMapper {
     User toUserEntity(NewUserRequest newUserRequest);
+
     @Named("toUserDto")
     UserDto toUserDto(User user);
 }
