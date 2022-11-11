@@ -1,5 +1,6 @@
 package com.practicum.ewmmain.entity;
 
+import com.practicum.ewmmain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,5 +1,7 @@
 package com.practicum.ewmmain.entity;
 
+import com.practicum.ewmmain.user.User;
+
 import java.time.LocalDateTime;
 
 public class ParticipationRequest {
