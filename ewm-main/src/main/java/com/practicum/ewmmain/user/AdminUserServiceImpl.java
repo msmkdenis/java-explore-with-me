@@ -15,24 +15,23 @@ import java.util.stream.Collectors;
 public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper;
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
-        User newUser = userMapper.toUserEntity(newUserRequest);
+        User newUser = UserMapper.toUserEntity(newUserRequest);
         log.info("newUser after mapping: {}", newUser);
 
         newUser = userRepository.save(newUser);
         log.info("newUser after save: {}", newUser);
 
-        return userMapper.toUserDto(newUser);
+        return UserMapper.toUserDto(newUser);
     }
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         return userRepository.findUsersByIds(ids, PageRequest.of(getPageNumber(from, size), size))
                 .stream()
-                .map(userMapper::toUserDto)
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
 
@@ -44,8 +43,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private User checkUser(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(String.format("User id=%d не найден!", id))
-        );
+                () -> new EntityNotFoundException(String.format("User id=%d не найден!", id)));
     }
 
     private int getPageNumber(int from, int size) {

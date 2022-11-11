@@ -1,12 +1,23 @@
 package com.practicum.ewmmain.user;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Named;
+import lombok.experimental.UtilityClass;
 
-@Mapper
-public interface UserMapper {
-    User toUserEntity(NewUserRequest newUserRequest);
+@UtilityClass
+public class UserMapper {
 
-    @Named("toUserDto")
-    UserDto toUserDto(User user);
+    public static User toUserEntity(NewUserRequest newUserRequest) {
+        return new User(
+                null,
+                newUserRequest.getName(),
+                newUserRequest.getEmail()
+        );
+    }
+
+    public static UserDto toUserDto(User user) {
+        return new UserDto(
+                user.getId(),
+                user.getName(),
+                user.getEmail()
+        );
+    }
 }
