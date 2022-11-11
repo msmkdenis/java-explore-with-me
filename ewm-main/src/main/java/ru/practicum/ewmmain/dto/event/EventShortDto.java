@@ -1,6 +1,6 @@
 package ru.practicum.ewmmain.dto.event;
 
-import ru.practicum.ewmmain.dto.category.CategoryDto;
+import ru.practicum.ewmmain.category.CategoryDto;
 import ru.practicum.ewmmain.user.UserShortDto;
 
 import java.time.LocalDateTime;

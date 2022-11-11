@@ -1,10 +1,11 @@
 package ru.practicum.ewmmain.entity;
 
-import ru.practicum.ewmmain.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.ewmmain.category.Category;
+import ru.practicum.ewmmain.user.User;
 
 import java.time.LocalDateTime;
 

@@ -1,10 +1,11 @@
 package ru.practicum.ewmmain.user;
 
-import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewmmain.exception.EntityNotFoundException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
 
+    @Transactional
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
         User newUser = UserMapper.toUserEntity(newUserRequest);
@@ -29,12 +31,20 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
-        return userRepository.findUsersByIds(ids, PageRequest.of(getPageNumber(from, size), size))
-                .stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
+        if (ids == null) {
+            return userRepository.findAll(PageRequest.of(getPageNumber(from, size), size))
+                    .stream()
+                    .map(UserMapper::toUserDto)
+                    .collect(Collectors.toList());
+        } else {
+            return userRepository.findUsersByIds(ids, PageRequest.of(getPageNumber(from, size), size))
+                    .stream()
+                    .map(UserMapper::toUserDto)
+                    .collect(Collectors.toList());
+        }
     }
 
+    @Transactional
     @Override
     public void deleteUser(long id) {
         User user = checkUser(id);
