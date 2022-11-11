@@ -7,11 +7,12 @@
         <artifactId>explore-with-me</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.practicum</groupId>
+
     <artifactId>ewm-stat</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ewm-stat</name>
     <description>ewm-stat</description>
+
     <properties>
         <java.version>11</java.version>
     </properties>
