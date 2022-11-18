@@ -1,9 +1,22 @@
 package ru.practicum.ewmmain.dto.compilation;
 
-import java.util.List;
+import lombok.*;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class NewCompilationDto {
+    @NotBlank
+    @Size(max = 250)
     private String title;
-    private List<Long> events;
+    private Set<Long> events;
+    @NotNull
     private boolean pinned;
 }

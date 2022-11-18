@@ -1,27 +1,45 @@
 package ru.practicum.ewmmain.dto.event;
 
-import ru.practicum.ewmmain.category.CategoryDto;
+import lombok.*;
+import ru.practicum.ewmmain.dto.category.CategoryDto;
 import ru.practicum.ewmmain.entity.EventStatus;
 import ru.practicum.ewmmain.entity.Location;
-import ru.practicum.ewmmain.user.UserShortDto;
+import ru.practicum.ewmmain.dto.user.UserShortDto;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EventFullDto {
     private Long id;
+    @NotBlank
+    @Size(max = 1000)
     private String annotation;
+    @NotBlank
     private CategoryDto category;
     private int confirmedRequests;
-    private LocalDateTime createdOn;
+    private String createdOn;
+    @Size(max = 7000)
     private String description;
-    private LocalDateTime eventDate;
+    @NotBlank
+    private String eventDate;
+    @NotBlank
     private UserShortDto initiator;
+    @NotBlank
     private Location location;
+    @NotBlank
     private boolean paid;
     private int participantLimit;
-    private LocalDateTime publishedOn;
+    private String publishedOn;
     private boolean requestModeration;
-    private EventStatus eventStatus;
+    @Size(max = 50)
+    private EventStatus state;
+    @Size(max = 100)
     private String title;
     private int views;
 }
