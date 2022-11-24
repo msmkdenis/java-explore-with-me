@@ -133,8 +133,8 @@ public class ParticipationServiceImpl implements ParticipationService {
     private void checkParticipationRequest(Event event, User user) {
 
         if (participationRepository.findByEventAndRequester(event.getId(), user.getId())) {
-            throw new ForbiddenError(String.format("ParticipationRequest user id=%d на участие в событии id=%d уже есть"
-                    , user.getId(), event.getId()));
+            throw new ForbiddenError(String.format("ParticipationRequest user id=%d на участие в событии id=%d уже есть",
+                    user.getId(), event.getId()));
         }
 
         if (event.getInitiator().equals(user)) {

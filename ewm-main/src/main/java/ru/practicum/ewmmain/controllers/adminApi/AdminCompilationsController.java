@@ -1,8 +1,7 @@
-package ru.practicum.ewmmain.controllers;
+package ru.practicum.ewmmain.controllers.adminApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewmmain.dto.compilation.CompilationDto;

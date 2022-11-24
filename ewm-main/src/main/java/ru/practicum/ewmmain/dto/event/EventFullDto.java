@@ -2,9 +2,9 @@ package ru.practicum.ewmmain.dto.event;
 
 import lombok.*;
 import ru.practicum.ewmmain.dto.category.CategoryDto;
+import ru.practicum.ewmmain.dto.user.UserShortDto;
 import ru.practicum.ewmmain.entity.EventStatus;
 import ru.practicum.ewmmain.entity.Location;
-import ru.practicum.ewmmain.dto.user.UserShortDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

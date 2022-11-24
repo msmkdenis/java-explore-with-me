@@ -11,7 +11,7 @@ import ru.practicum.ewmmain.dto.user.UserDto;
 import ru.practicum.ewmmain.entity.User;
 import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.repository.UserRepository;
-import ru.practicum.ewmmain.service.AdminUserService;
+import ru.practicum.ewmmain.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AdminUserServiceImpl implements AdminUserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 

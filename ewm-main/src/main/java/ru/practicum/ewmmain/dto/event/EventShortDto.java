@@ -4,8 +4,6 @@ import lombok.*;
 import ru.practicum.ewmmain.dto.category.CategoryDto;
 import ru.practicum.ewmmain.dto.user.UserShortDto;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor

@@ -1,12 +1,12 @@
-package ru.practicum.ewmmain.controllers;
+package ru.practicum.ewmmain.controllers.adminApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmain.service.CategoryService;
 import ru.practicum.ewmmain.dto.category.CategoryDto;
 import ru.practicum.ewmmain.dto.category.NewCategoryDto;
+import ru.practicum.ewmmain.service.CategoryService;
 
 import javax.validation.Valid;
 

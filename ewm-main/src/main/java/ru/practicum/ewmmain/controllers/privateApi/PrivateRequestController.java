@@ -1,15 +1,13 @@
-package ru.practicum.ewmmain.controllers;
+package ru.practicum.ewmmain.controllers.privateApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmain.dto.event.EventShortDto;
 import ru.practicum.ewmmain.dto.participationRequest.ParticipationRequestDto;
 import ru.practicum.ewmmain.service.ParticipationService;
 
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j

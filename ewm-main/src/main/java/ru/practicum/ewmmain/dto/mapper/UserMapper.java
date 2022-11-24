@@ -2,9 +2,9 @@ package ru.practicum.ewmmain.dto.mapper;
 
 import lombok.experimental.UtilityClass;
 import ru.practicum.ewmmain.dto.user.NewUserRequest;
+import ru.practicum.ewmmain.dto.user.UserDto;
 import ru.practicum.ewmmain.dto.user.UserShortDto;
 import ru.practicum.ewmmain.entity.User;
-import ru.practicum.ewmmain.dto.user.UserDto;
 
 @UtilityClass
 public class UserMapper {

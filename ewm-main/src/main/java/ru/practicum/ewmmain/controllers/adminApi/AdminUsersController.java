@@ -1,12 +1,12 @@
-package ru.practicum.ewmmain.controllers;
+package ru.practicum.ewmmain.controllers.adminApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewmmain.service.AdminUserService;
 import ru.practicum.ewmmain.dto.user.NewUserRequest;
 import ru.practicum.ewmmain.dto.user.UserDto;
+import ru.practicum.ewmmain.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -20,20 +20,20 @@ import java.util.List;
 @Validated
 public class AdminUsersController {
 
-    private final AdminUserService adminUserService;
+    private final UserService userService;
 
     @PostMapping
     public UserDto addUser(
             @RequestBody @Valid NewUserRequest newUserRequest
     ) {
         log.info("adminUsersController POST addUser получен NewUserRequest: {}", newUserRequest);
-        return adminUserService.addUser(newUserRequest);
+        return userService.addUser(newUserRequest);
     }
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable long userId) {
         log.info("adminUsersController DELETE deleteUser получен userId: {}", userId);
-        adminUserService.deleteUser(userId);
+        userService.deleteUser(userId);
     }
 
     @GetMapping
@@ -43,6 +43,6 @@ public class AdminUsersController {
             @Positive @RequestParam(name = "size", defaultValue = "10") int size
     ) {
         log.info("adminUsersController GET getUsers ids: {}", ids);
-        return adminUserService.getUsers(ids, from, size);
+        return userService.getUsers(ids, from, size);
     }
 }

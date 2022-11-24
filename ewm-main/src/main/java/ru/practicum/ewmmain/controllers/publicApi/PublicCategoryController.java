@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.controllers;
+package ru.practicum.ewmmain.controllers.publicApi;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,7 @@ public class PublicCategoryController {
     }
 
     @GetMapping("/{catId}")
-    public CategoryDto getCategory(@PathVariable long catId)
-    {
+    public CategoryDto getCategory(@PathVariable long catId) {
         log.info("CategoryController GET getCategory catId: {}", catId);
         return categoryService.getCategory(catId);
     }

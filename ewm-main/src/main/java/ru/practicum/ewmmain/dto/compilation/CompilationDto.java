@@ -4,7 +4,6 @@ import lombok.*;
 import ru.practicum.ewmmain.dto.event.EventShortDto;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 import java.util.Set;
 
 @Getter
