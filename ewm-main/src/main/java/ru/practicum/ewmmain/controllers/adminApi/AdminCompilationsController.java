@@ -21,11 +21,13 @@ public class AdminCompilationsController {
 
     @PostMapping
     public CompilationDto createCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
+        log.info("AdminCompilationsController POST createCompilation получен newCompilationDto: {}", newCompilationDto);
         return compilationService.createCompilation(newCompilationDto);
     }
 
     @DeleteMapping("/{compId}")
     public void deleteCompilation(@PathVariable long compId) {
+        log.info("AdminCompilationsController DELETE deleteCompilation получен compId: {}", compId);
         compilationService.deleteCompilation(compId);
     }
 
@@ -34,6 +36,7 @@ public class AdminCompilationsController {
             @PathVariable long compId,
             @PathVariable long eventId
     ) {
+        log.info("AdminCompilationsController DELETE deleteEventFromCompilation получен compId: {}", compId);
         compilationService.deleteEventFromCompilation(compId, eventId);
     }
 
@@ -42,24 +45,19 @@ public class AdminCompilationsController {
             @PathVariable long compId,
             @PathVariable long eventId
     ) {
+        log.info("AdminCompilationsController PATCH addEventToCompilation получен compId: {}, eventId: {}", compId, eventId);
         compilationService.addEventToCompilation(compId, eventId);
     }
 
-    /**
-     * Открепить подборку на главной странице
-     * @param compId id подборки
-     */
     @DeleteMapping("/{compId}/pin")
     public void unpinCompilation(@PathVariable long compId) {
+        log.info("AdminCompilationsController DELETE unpinCompilation получен compId: {}", compId);
         compilationService.unpinCompilation(compId);
     }
 
-    /**
-     * Закрепить подборку на главной странице
-     * @param compId id подборки
-     */
     @PatchMapping("/{compId}/pin")
     public void pinCompilation(@PathVariable long compId) {
+        log.info("AdminCompilationsController PATCH pinCompilation получен compId: {}", compId);
         compilationService.pinCompilation(compId);
     }
 

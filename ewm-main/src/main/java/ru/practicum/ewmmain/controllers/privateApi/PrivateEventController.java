@@ -42,6 +42,7 @@ public class PrivateEventController {
             @PathVariable long userId,
             @RequestBody @Valid UpdateEventRequest updateEventRequest
     ) {
+        log.info("PrivateEventController PATCH updateEventByUser userId: {}", userId);
         return eventService.updateEventByUser(userId, updateEventRequest);
     }
 
@@ -100,5 +101,4 @@ public class PrivateEventController {
         log.info("PrivateEventController PATCH rejectEventRequest id = {}, user id = {}", reqId, userId);
         return participationService.rejectEventRequest(userId, eventId, reqId);
     }
-
 }

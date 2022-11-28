@@ -47,6 +47,7 @@ public class EventServiceImpl implements EventService {
         checkNewEventDate(event);
         locationRepository.save(location);
         eventRepository.save(event);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -55,6 +56,7 @@ public class EventServiceImpl implements EventService {
         Event event = checkEvent(id);
         checkEventStatus(event);
         event.setViews(event.getViews() + 1);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -69,6 +71,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getEventsByCurrentUser(long userId, int from, int size) {
         checkUser(userId);
+
         return eventRepository.findAllByInitiatorId(userId, PageRequest.of(getPageNumber(from, size), size)).stream()
                 .map(EventMapper::toEventShortDto)
                 .collect(Collectors.toList());
@@ -79,8 +82,8 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventByUser(long userId, @NonNull UpdateEventRequest updateEventRequest) {
         Event event = checkEvent(updateEventRequest.getEventId());
         checkNewEventDate(event);
-        //checkEventStatus(event);
         updateEventFieldsByUser(event, updateEventRequest);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -89,6 +92,7 @@ public class EventServiceImpl implements EventService {
         User user = checkUser(userId);
         Event event = checkEvent(eventId);
         checkEventInitiator(user, event);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -98,8 +102,8 @@ public class EventServiceImpl implements EventService {
         User user = checkUser(userId);
         Event event = checkEvent(eventId);
         checkEventInitiator(user, event);
-        //checkEventStatus(event);
         event.setEventStatus(EventStatus.CANCELED);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -115,9 +119,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEventByAdmin(long eventId, @NonNull AdminUpdateEventRequest updateEventRequest) {
         Event event = checkEvent(eventId);
-        log.info("event from bd: {}", event);
         updateEventFieldsByAdmin(event, updateEventRequest);
-        log.info("event after update: {}", event);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -128,6 +131,7 @@ public class EventServiceImpl implements EventService {
         checkEventForPublish(event);
         event.setEventStatus(EventStatus.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -137,6 +141,7 @@ public class EventServiceImpl implements EventService {
         Event event = checkEvent(eventId);
         checkEventForReject(event);
         event.setEventStatus(EventStatus.CANCELED);
+
         return EventMapper.toEventFullDto(event);
     }
 
@@ -179,7 +184,7 @@ public class EventServiceImpl implements EventService {
     private void checkEventInitiator(@NonNull User user, @NonNull Event event) {
         if (!Objects.equals(user.getId(), event.getInitiator().getId())) {
             throw new ForbiddenError(
-                    String.format("Юзер id=%d не является инициатором события id=%d", user.getId(), event.getId())
+                    String.format("User id=%d не является инициатором события id=%d", user.getId(), event.getId())
             );
         }
     }

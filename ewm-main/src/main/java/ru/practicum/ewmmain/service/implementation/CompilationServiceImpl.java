@@ -43,6 +43,7 @@ public class CompilationServiceImpl implements CompilationService {
                     PageRequest.of(getPageNumber(from, size), size)
             );
         }
+
         return compilations
                 .stream()
                 .map(CompilationMapper::toCompilationDto)
@@ -52,6 +53,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(long id) {
         Compilation compilation = checkCompilation(id);
+
         return CompilationMapper.toCompilationDto(compilation);
     }
 
@@ -60,6 +62,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
         Set<Event> events = eventRepository.getEventsByIds(newCompilationDto.getEvents());
         compilation.setEvents(events);
+
         return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
     }
 
@@ -90,7 +93,7 @@ public class CompilationServiceImpl implements CompilationService {
     public void unpinCompilation(long compId) {
         Compilation compilation = checkCompilation(compId);
         if (!compilation.isPinned()) {
-            throw new ForbiddenError(String.format("Compilation id = '%s' already unpinned", compId));
+            throw new ForbiddenError(String.format("Compilation id = '%s' уже откреплена", compId));
         }
         compilation.setPinned(false);
     }
@@ -100,7 +103,7 @@ public class CompilationServiceImpl implements CompilationService {
     public void pinCompilation(long compId) {
         Compilation compilation = checkCompilation(compId);
         if (compilation.isPinned()) {
-            throw new ForbiddenError(String.format("Compilation id = '%s' already pinned", compId));
+            throw new ForbiddenError(String.format("Compilation id = '%s' уже закреплена", compId));
         }
         compilation.setPinned(true);
     }

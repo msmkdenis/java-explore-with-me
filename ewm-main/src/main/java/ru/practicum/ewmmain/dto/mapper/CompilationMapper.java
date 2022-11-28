@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class CompilationMapper {
 
-    //присваивать в метод Events
     public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
         return Compilation.builder()
                 .title(newCompilationDto.getTitle())

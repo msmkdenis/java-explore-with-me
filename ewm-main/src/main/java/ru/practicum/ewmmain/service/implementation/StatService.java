@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.service;
+package ru.practicum.ewmmain.service.implementation;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +32,6 @@ public class StatService {
         hitDto.setUri(request.getRequestURI());
         hitDto.setIp(request.getRemoteAddr());
         hitDto.setTimestamp(LocalDateTime.now());
-
         makeAndSendRequest(hitDto);
     }
 
@@ -45,6 +44,7 @@ public class StatService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+
         return headers;
     }
 }

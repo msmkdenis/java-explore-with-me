@@ -49,12 +49,14 @@ public class StatServiceImpl implements StatService {
         ViewStats viewStats = new ViewStats();
         viewStats.setApp(hit.getApp());
         viewStats.setUri(hit.getUri());
+
         return viewStats;
     }
 
     private static <T> Predicate<T> distinctByKey(
             Function<? super T, ?> keyExtractor) {
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }
 }

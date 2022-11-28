@@ -31,16 +31,19 @@ public class AdminEventController {
             @PathVariable long eventId,
             @RequestBody AdminUpdateEventRequest updateEventRequest
     ) {
+        log.info("AdminEventController PUT updateEventByAdmin eventId: {}, updateEventRequest: {}", eventId, updateEventRequest);
         return eventService.updateEventByAdmin(eventId, updateEventRequest);
     }
 
     @PatchMapping("/{eventId}/publish")
     public EventFullDto publishEvent(@PathVariable long eventId) {
+        log.info("AdminEventController PATCH publishEvent eventId: {}", eventId);
         return eventService.publishEvent(eventId);
     }
 
     @PatchMapping("/{eventId}/reject")
     public EventFullDto rejectEvent(@PathVariable long eventId) {
+        log.info("AdminEventController PATCH rejectEvent eventId: {}", eventId);
         return eventService.rejectEvent(eventId);
     }
 }

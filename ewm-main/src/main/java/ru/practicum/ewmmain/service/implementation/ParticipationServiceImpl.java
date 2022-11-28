@@ -34,6 +34,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         User user = checkUser(userId);
         Event event = checkEvent(eventId);
         checkEventInitiator(user, event);
+
         return participationRepository.findAllByEventId(eventId).stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto).collect(Collectors.toList());
     }
@@ -44,22 +45,28 @@ public class ParticipationServiceImpl implements ParticipationService {
         Event event = checkEvent(eventId);
         User user = checkUser(userId);
         checkEventInitiator(user, event);
+
         ParticipationRequest participationRequest = checkParticipationRequest(reqId);
+
         if (!participationRequest.getRequestStatus().equals(RequestStatus.PENDING)) {
             throw new ForbiddenError("Требуется статус PENDING");
         }
+
         if (event.getParticipantLimit() == 0 || !event.isRequestModeration()) {
             participationRequest.setRequestStatus(RequestStatus.CONFIRMED);
             return ParticipationRequestMapper.toParticipationRequestDto(participationRequest);
         }
+
         checkRequestLimit(event);
         participationRequest.setRequestStatus(RequestStatus.CONFIRMED);
         event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         long quantity = participationRepository.quantityEventRequests(event.getId(), List.of(RequestStatus.CONFIRMED));
+
         if (quantity == event.getParticipantLimit()) {
             participationRepository.getAllByEventIdAndStatus(eventId, RequestStatus.PENDING)
                     .forEach(r -> r.setRequestStatus(RequestStatus.CANCELED));
         }
+
         return ParticipationRequestMapper.toParticipationRequestDto(participationRequest);
     }
 
@@ -70,16 +77,19 @@ public class ParticipationServiceImpl implements ParticipationService {
         User user = checkUser(userId);
         checkEventInitiator(user, event);
         ParticipationRequest participationRequest = checkParticipationRequest(reqId);
+
         if (participationRequest.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         }
         participationRequest.setRequestStatus(RequestStatus.REJECTED);
+
         return ParticipationRequestMapper.toParticipationRequestDto(participationRequest);
     }
 
     @Override
     public List<ParticipationRequestDto> getRequestsByCurrentUser(Long userId) {
         checkUser(userId);
+
         return participationRepository.getAllByUserId(userId).stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
@@ -91,6 +101,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         User user = checkUser(userId);
         checkParticipationRequest(event, user);
         ParticipationRequest request = makeNewRequest(user, event);
+
         return ParticipationRequestMapper.toParticipationRequestDto(participationRepository.save(request));
     }
 
@@ -99,18 +110,21 @@ public class ParticipationServiceImpl implements ParticipationService {
     public ParticipationRequestDto cancelRequest(long userId, long requestId) {
         ParticipationRequest request = checkParticipationRequest(requestId);
         checkUser(userId);
+
         if (request.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
             Event event = checkEvent(request.getEvent().getId());
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         }
+
         request.setRequestStatus(RequestStatus.CANCELED);
+
         return ParticipationRequestMapper.toParticipationRequestDto(request);
     }
 
     private void checkEventInitiator(@NonNull User user, @NonNull Event event) {
         if (!Objects.equals(user.getId(), event.getInitiator().getId())) {
             throw new ForbiddenError(
-                    String.format("Юзер id=%d не является инициатором события id=%d", user.getId(), event.getId())
+                    String.format("User id=%d не является инициатором события id=%d", user.getId(), event.getId())
             );
         }
     }
@@ -171,6 +185,7 @@ public class ParticipationServiceImpl implements ParticipationService {
         } else {
             request.setRequestStatus(RequestStatus.CONFIRMED);
         }
+
         return request;
     }
 }

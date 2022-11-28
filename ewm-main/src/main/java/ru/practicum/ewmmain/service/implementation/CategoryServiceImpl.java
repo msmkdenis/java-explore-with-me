@@ -30,10 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
         Category newCategory = CategoryMapper.toCategory(newCategoryDto);
-        log.info("newCategory after mapping: {}", newCategory);
-
         newCategory = categoryRepository.save(newCategory);
-        log.info("newCategory after save: {}", newCategory);
 
         return CategoryMapper.toCategoryDto(newCategory);
     }
@@ -43,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(CategoryDto categoryDto) {
         Category category = checkCategory(categoryDto.getId());
         category.setName(categoryDto.getName());
+
         return CategoryMapper.toCategoryDto(category);
     }
 
@@ -64,6 +62,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto getCategory(long catId) {
         Category category = checkCategory(catId);
+
         return CategoryMapper.toCategoryDto(category);
     }
 
