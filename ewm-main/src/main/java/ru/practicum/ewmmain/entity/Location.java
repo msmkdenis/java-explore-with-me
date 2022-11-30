@@ -19,9 +19,9 @@ public class Location {
     @Column(name = "location_id")
     private Long id;
 
-    @Column(name = "lat", nullable = false)
+    @Column(name = "lat")
     private Float lat;
 
-    @Column(name = "lon", nullable = false)
+    @Column(name = "lon")
     private Float lon;
 }

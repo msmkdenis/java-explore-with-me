@@ -47,7 +47,6 @@ public class EventServiceImpl implements EventService {
         checkNewEventDate(event);
         locationRepository.save(location);
         eventRepository.save(event);
-
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
