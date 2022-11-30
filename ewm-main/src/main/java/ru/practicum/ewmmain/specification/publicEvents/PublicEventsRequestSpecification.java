@@ -3,6 +3,8 @@ package ru.practicum.ewmmain.specification.publicEvents;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.ewmmain.entity.Event;
+import ru.practicum.ewmmain.entity.RequestStatus;
+import ru.practicum.ewmmain.repository.ParticipationRepository;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -17,6 +19,7 @@ import java.util.List;
 public class PublicEventsRequestSpecification implements Specification<Event> {
 
     private PublicEventsRequestParameters parameters;
+    //private final ParticipationRepository participationRepository;
 
     public static final String DATE_TIME_STRING = "yyyy-MM-dd HH:mm:ss";
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_STRING);
@@ -65,17 +68,17 @@ public class PublicEventsRequestSpecification implements Specification<Event> {
             );
         }
 
-        Boolean onlyAvailable = parameters.getOnlyAvailable();
+/*        Boolean onlyAvailable = parameters.getOnlyAvailable();
         if (onlyAvailable != null) {
             predicates.add(
                     cb.or(
-                            cb.greaterThan(root.get("participantLimit"), root.get("confirmedRequests")),
+                            cb.greaterThan(root.get("participantLimit"), root.get("confirmed_requests")),
                             cb.equal(root.get("participantLimit"), 0)
                     )
             );
-        }
+        }*/
 
-        EventSortType sortType = parameters.getSort();
+/*        EventSortType sortType = parameters.getSort();
         if (sortType != null) {
             switch (sortType) {
                 case EVENT_DATE:
@@ -85,7 +88,7 @@ public class PublicEventsRequestSpecification implements Specification<Event> {
                     query.orderBy(cb.desc(root.get("views")));
                     break;
             }
-        }
+        }*/
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }

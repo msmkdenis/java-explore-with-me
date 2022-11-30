@@ -9,13 +9,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmain.dto.compilation.CompilationDto;
 import ru.practicum.ewmmain.dto.compilation.NewCompilationDto;
+import ru.practicum.ewmmain.dto.event.EventShortDto;
 import ru.practicum.ewmmain.dto.mapper.CompilationMapper;
+import ru.practicum.ewmmain.dto.mapper.EventMapper;
 import ru.practicum.ewmmain.entity.Compilation;
 import ru.practicum.ewmmain.entity.Event;
+import ru.practicum.ewmmain.entity.RequestStatus;
 import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.exception.ForbiddenError;
 import ru.practicum.ewmmain.repository.CompilationRepository;
 import ru.practicum.ewmmain.repository.EventRepository;
+import ru.practicum.ewmmain.repository.ParticipationRepository;
 import ru.practicum.ewmmain.service.CompilationService;
 
 import java.util.List;
@@ -31,6 +35,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
+    private final ParticipationRepository participationRepository;
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
@@ -46,7 +51,7 @@ public class CompilationServiceImpl implements CompilationService {
 
         return compilations
                 .stream()
-                .map(CompilationMapper::toCompilationDto)
+                .map(compilation -> CompilationMapper.toCompilationDto(compilation, getEventShortDto(compilation)))
                 .collect(Collectors.toList());
     }
 
@@ -54,7 +59,7 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto getCompilationById(long id) {
         Compilation compilation = checkCompilation(id);
 
-        return CompilationMapper.toCompilationDto(compilation);
+        return CompilationMapper.toCompilationDto(compilation, getEventShortDto(compilation));
     }
 
     @Override
@@ -63,7 +68,7 @@ public class CompilationServiceImpl implements CompilationService {
         Set<Event> events = eventRepository.getEventsByIds(newCompilationDto.getEvents());
         compilation.setEvents(events);
 
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), getEventShortDto(compilation));
     }
 
     @Override
@@ -120,5 +125,16 @@ public class CompilationServiceImpl implements CompilationService {
 
     private int getPageNumber(int from, int size) {
         return from / size;
+    }
+
+    private int getConfirmedRequests(long eventId) {
+        return participationRepository.countByEventIdAndRequestStatus(eventId, RequestStatus.CONFIRMED);
+    }
+
+    private Set<EventShortDto> getEventShortDto(Compilation compilation) {
+        Set<Event> events = compilation.getEvents();
+        return events.stream()
+                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequests(event.getId())))
+                .collect(Collectors.toSet());
     }
 }

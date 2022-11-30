@@ -35,12 +35,12 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventFullDto toEventFullDto(Event event) {
+    public static EventFullDto toEventFullDto(Event event, int requests) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
+                .confirmedRequests(requests)
                 .createdOn(event.getCreatedOn().format(DATE_TIME_FORMATTER))
                 .description(event.getDescription())
                 .eventDate(event.getEventDate().format(DATE_TIME_FORMATTER))
@@ -56,12 +56,12 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event) {
+    public static EventShortDto toEventShortDto(Event event, int requests) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
-                .confirmedRequests(event.getConfirmedRequests())
+                .confirmedRequests(requests)
                 .eventDate(event.getEventDate().format(DATE_TIME_FORMATTER))
                 .initiator(UserMapper.userShortDto(event.getInitiator()))
                 .paid(event.isPaid())
