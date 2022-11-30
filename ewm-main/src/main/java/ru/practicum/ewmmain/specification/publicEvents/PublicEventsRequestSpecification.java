@@ -3,8 +3,6 @@ package ru.practicum.ewmmain.specification.publicEvents;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.entity.RequestStatus;
-import ru.practicum.ewmmain.repository.ParticipationRepository;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;

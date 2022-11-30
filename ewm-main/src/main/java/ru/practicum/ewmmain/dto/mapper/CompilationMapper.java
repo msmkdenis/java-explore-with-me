@@ -7,7 +7,6 @@ import ru.practicum.ewmmain.dto.event.EventShortDto;
 import ru.practicum.ewmmain.entity.Compilation;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class CompilationMapper {

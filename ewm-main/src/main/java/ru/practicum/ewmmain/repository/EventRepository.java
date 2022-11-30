@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParameters;
 
 import java.util.Collection;
 import java.util.List;

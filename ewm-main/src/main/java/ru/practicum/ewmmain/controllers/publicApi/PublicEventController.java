@@ -3,17 +3,17 @@ package ru.practicum.ewmmain.controllers.publicApi;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewmmain.client.StatService;
 import ru.practicum.ewmmain.dto.event.EventFullDto;
 import ru.practicum.ewmmain.dto.event.EventShortDto;
 import ru.practicum.ewmmain.service.EventService;
-import ru.practicum.ewmmain.service.implementation.StatService;
-import ru.practicum.ewmmain.specification.publicEvents.EventSortType;
 import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParameters;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @Slf4j

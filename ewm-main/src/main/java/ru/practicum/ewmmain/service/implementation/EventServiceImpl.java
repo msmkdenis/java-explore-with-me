@@ -3,10 +3,10 @@ package ru.practicum.ewmmain.service.implementation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewmmain.client.StatService;
 import ru.practicum.ewmmain.dto.event.*;
 import ru.practicum.ewmmain.dto.location.LocationDto;
 import ru.practicum.ewmmain.dto.mapper.EventMapper;
@@ -35,6 +35,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final ParticipationRepository participationRepository;
+    private final StatService statService;
 
     @Transactional
     @Override
@@ -47,16 +48,29 @@ public class EventServiceImpl implements EventService {
         locationRepository.save(location);
         eventRepository.save(event);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
+
+/*    @Override
+    public EventFullDto getEventById(long id) {
+        Event event = checkEvent(id);
+        checkEventStatus(event);
+        event.setViews(event.getViews() + 1);
+        log.info("Количество просмотров из клиента " + statService.getViews(id));
+        log.info("Количество просмотров из сущности " + event.getViews());
+
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+    }*/
 
     @Override
     public EventFullDto getEventById(long id) {
         Event event = checkEvent(id);
         checkEventStatus(event);
-        event.setViews(event.getViews() + 1);
+        //event.setViews(event.getViews() + 1);
+        //log.info("Количество просмотров из клиента " + statService.getViews(id));
+        //log.info("Количество просмотров из сущности " + event.getViews());
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
 /*    @Override
@@ -78,7 +92,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
         return events.stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequests(event.getId())))
+                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -87,7 +101,7 @@ public class EventServiceImpl implements EventService {
         checkUser(userId);
 
         return eventRepository.findAllByInitiatorId(userId, PageRequest.of(getPageNumber(from, size), size)).stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequests(event.getId())))
+                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -98,7 +112,7 @@ public class EventServiceImpl implements EventService {
         checkNewEventDate(event);
         updateEventFieldsByUser(event, updateEventRequest);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     @Override
@@ -107,7 +121,7 @@ public class EventServiceImpl implements EventService {
         Event event = checkEvent(eventId);
         checkEventInitiator(user, event);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     @Override
@@ -118,14 +132,14 @@ public class EventServiceImpl implements EventService {
         checkEventInitiator(user, event);
         event.setEventStatus(EventStatus.CANCELED);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     @Override
     public List<EventFullDto> getAllEvents(AdminEventsRequestParameters parameters) {
         return eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
                 .stream()
-                .map(event -> EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId())))
+                .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -135,7 +149,7 @@ public class EventServiceImpl implements EventService {
         Event event = checkEvent(eventId);
         updateEventFieldsByAdmin(event, updateEventRequest);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     @Transactional
@@ -146,7 +160,7 @@ public class EventServiceImpl implements EventService {
         event.setEventStatus(EventStatus.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     @Transactional
@@ -156,7 +170,7 @@ public class EventServiceImpl implements EventService {
         checkEventForReject(event);
         event.setEventStatus(EventStatus.CANCELED);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
+        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
     private User checkUser(Long id) {
@@ -324,5 +338,9 @@ public class EventServiceImpl implements EventService {
 
     private int getConfirmedRequests(long eventId) {
         return participationRepository.countByEventIdAndRequestStatus(eventId, RequestStatus.CONFIRMED);
+    }
+
+    private int getViews(long eventId) {
+        return statService.getViews(eventId);
     }
 }

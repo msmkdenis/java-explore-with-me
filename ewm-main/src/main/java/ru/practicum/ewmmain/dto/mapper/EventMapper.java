@@ -35,7 +35,7 @@ public class EventMapper {
                 .build();
     }
 
-    public static EventFullDto toEventFullDto(Event event, int requests) {
+    public static EventFullDto toEventFullDto(Event event, int requests, int views) {
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -52,11 +52,11 @@ public class EventMapper {
                 .requestModeration(event.isRequestModeration())
                 .state(event.getEventStatus())
                 .title(event.getTitle())
-                .views(event.getViews())
+                .views(views)
                 .build();
     }
 
-    public static EventShortDto toEventShortDto(Event event, int requests) {
+    public static EventShortDto toEventShortDto(Event event, int requests, int views) {
         return EventShortDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
@@ -66,7 +66,7 @@ public class EventMapper {
                 .initiator(UserMapper.userShortDto(event.getInitiator()))
                 .paid(event.isPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
+                .views(views)
                 .build();
     }
 }

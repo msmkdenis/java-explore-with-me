@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewmmain.client.StatService;
 import ru.practicum.ewmmain.dto.compilation.CompilationDto;
 import ru.practicum.ewmmain.dto.compilation.NewCompilationDto;
 import ru.practicum.ewmmain.dto.event.EventShortDto;
@@ -36,6 +37,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
+    private final StatService statService;
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
@@ -134,7 +136,11 @@ public class CompilationServiceImpl implements CompilationService {
     private Set<EventShortDto> getEventShortDto(Compilation compilation) {
         Set<Event> events = compilation.getEvents();
         return events.stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequests(event.getId())))
+                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
                 .collect(Collectors.toSet());
+    }
+
+    private int getViews(long eventId) {
+        return statService.getViews(eventId);
     }
 }

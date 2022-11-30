@@ -68,6 +68,6 @@ public class Event {
     @Column(name = "title", length = 100, nullable = false)
     private String title;
 
-    @Column(name = "views")
-    private int views;
+    //@Column(name = "views")
+    //private int views;
 }
