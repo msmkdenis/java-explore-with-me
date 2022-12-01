@@ -8,13 +8,13 @@ import ru.practicum.ewmmain.dto.compilation.NewCompilationDto;
 import java.util.List;
 
 public interface CompilationService {
-    List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size);
+    List<CompilationDto> getAll(Boolean pinned, int from, int size);
 
-    CompilationDto getCompilationById(long id);
+    CompilationDto getById(long id);
 
-    CompilationDto createCompilation(@NonNull NewCompilationDto newCompilationDto);
+    CompilationDto add(@NonNull NewCompilationDto newCompilationDto);
 
-    void deleteCompilation(long compId);
+    void delete(long compId);
 
     @Transactional
     void deleteEventFromCompilation(long compId, long eventId);

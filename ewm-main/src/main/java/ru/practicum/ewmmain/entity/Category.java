@@ -10,7 +10,6 @@ import javax.persistence.*;
 @Table(name = "categories")
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

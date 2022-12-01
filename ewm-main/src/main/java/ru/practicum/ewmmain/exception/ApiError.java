@@ -17,7 +17,7 @@ public class ApiError {
     private final LocalDateTime timestamp;
     private final List<StackTraceElement> errors;
 
-    public ApiError(RuntimeException exception, String reason, HttpStatus status) {
+    public ApiError(Throwable exception, String reason, HttpStatus status) {
         this.message = exception.getMessage();
         this.reason = reason;
         this.status = status;

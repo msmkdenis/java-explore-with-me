@@ -40,7 +40,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final StatService statService;
 
     @Override
-    public List<CompilationDto> getAllCompilations(Boolean pinned, int from, int size) {
+    public List<CompilationDto> getAll(Boolean pinned, int from, int size) {
         Page<Compilation> compilations;
         if (isNull(pinned)) {
             compilations = compilationRepository.findAll(PageRequest.of(getPageNumber(from, size), size));
@@ -58,14 +58,14 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public CompilationDto getCompilationById(long id) {
-        Compilation compilation = checkCompilation(id);
+    public CompilationDto getById(long id) {
+        Compilation compilation = findCompilationOrThrow(id);
 
         return CompilationMapper.toCompilationDto(compilation, getEventShortDto(compilation));
     }
 
     @Override
-    public CompilationDto createCompilation(@NonNull NewCompilationDto newCompilationDto) {
+    public CompilationDto add(@NonNull NewCompilationDto newCompilationDto) {
         Compilation compilation = CompilationMapper.toCompilation(newCompilationDto);
         Set<Event> events = eventRepository.getEventsByIds(newCompilationDto.getEvents());
         compilation.setEvents(events);
@@ -74,31 +74,31 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
-    public void deleteCompilation(long compId) {
-        Compilation compilation = checkCompilation(compId);
+    public void delete(long compId) {
+        Compilation compilation = findCompilationOrThrow(compId);
         compilationRepository.delete(compilation);
     }
 
     @Transactional
     @Override
     public void deleteEventFromCompilation(long compId, long eventId) {
-        Compilation compilation = checkCompilation(compId);
-        Event event = checkEvent(eventId);
+        Compilation compilation = findCompilationOrThrow(compId);
+        Event event = findEventOrThrow(eventId);
         compilation.getEvents().remove(event);
     }
 
     @Override
     @Transactional
     public void addEventToCompilation(long compId, long eventId) {
-        Compilation compilation = checkCompilation(compId);
-        Event event = checkEvent(eventId);
+        Compilation compilation = findCompilationOrThrow(compId);
+        Event event = findEventOrThrow(eventId);
         compilation.getEvents().add(event);
     }
 
     @Override
     @Transactional
     public void unpinCompilation(long compId) {
-        Compilation compilation = checkCompilation(compId);
+        Compilation compilation = findCompilationOrThrow(compId);
         if (!compilation.isPinned()) {
             throw new ForbiddenError(String.format("Compilation id = '%s' уже откреплена", compId));
         }
@@ -108,19 +108,19 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void pinCompilation(long compId) {
-        Compilation compilation = checkCompilation(compId);
+        Compilation compilation = findCompilationOrThrow(compId);
         if (compilation.isPinned()) {
             throw new ForbiddenError(String.format("Compilation id = '%s' уже закреплена", compId));
         }
         compilation.setPinned(true);
     }
 
-    private Compilation checkCompilation(Long id) {
+    private Compilation findCompilationOrThrow(Long id) {
         return compilationRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Compilation id=%d не найден!", id)));
     }
 
-    private Event checkEvent(Long id) {
+    private Event findEventOrThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Event id=%d не найден!", id)));
     }

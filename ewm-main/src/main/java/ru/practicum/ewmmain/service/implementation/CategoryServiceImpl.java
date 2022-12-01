@@ -28,7 +28,8 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
+    public CategoryDto add(NewCategoryDto newCategoryDto) {
+        checkNameInRepository(newCategoryDto.getName());
         Category newCategory = CategoryMapper.toCategory(newCategoryDto);
         newCategory = categoryRepository.save(newCategory);
 
@@ -37,8 +38,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public CategoryDto updateCategory(CategoryDto categoryDto) {
-        Category category = checkCategory(categoryDto.getId());
+    public CategoryDto update(CategoryDto categoryDto) {
+        checkNameInRepository(categoryDto.getName());
+        Category category = findCategoryOrThrow(categoryDto.getId());
         category.setName(categoryDto.getName());
 
         return CategoryMapper.toCategoryDto(category);
@@ -46,27 +48,27 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Transactional
     @Override
-    public void deleteCategory(long catId) {
-        Category category = checkCategory(catId);
+    public void delete(long catId) {
+        Category category = findCategoryOrThrow(catId);
         checkCategoryEvents(catId);
         categoryRepository.delete(category);
     }
 
     @Override
-    public List<CategoryDto> getAllCategories(int from, int size) {
+    public List<CategoryDto> getAll(int from, int size) {
         return categoryRepository.findAll(PageRequest.of(getPageNumber(from, size), size)).stream()
                 .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public CategoryDto getCategory(long catId) {
-        Category category = checkCategory(catId);
+    public CategoryDto getById(long catId) {
+        Category category = findCategoryOrThrow(catId);
 
         return CategoryMapper.toCategoryDto(category);
     }
 
-    private Category checkCategory(Long id) {
+    private Category findCategoryOrThrow(Long id) {
         return categoryRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Category id=%d не найден!", id)));
     }
@@ -74,6 +76,12 @@ public class CategoryServiceImpl implements CategoryService {
     private void checkCategoryEvents(long catId) {
         if (eventRepository.areEventsWithCategory(catId)) {
             throw new ConflictError(String.format("У категории id=%d есть связанные события!", catId));
+        }
+    }
+
+    private void checkNameInRepository(String name) {
+        if (categoryRepository.existsByName(name)) {
+            throw new ConflictError(String.format("Имя категории = '%s' уже занято ", name));
         }
     }
 

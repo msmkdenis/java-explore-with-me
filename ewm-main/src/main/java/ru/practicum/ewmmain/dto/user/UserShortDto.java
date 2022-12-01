@@ -11,6 +11,5 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class UserShortDto {
     private Long id;
-    @NotBlank
     private String name;
 }

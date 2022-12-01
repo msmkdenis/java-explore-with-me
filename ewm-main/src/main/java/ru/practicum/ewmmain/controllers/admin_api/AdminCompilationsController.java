@@ -1,8 +1,7 @@
-package ru.practicum.ewmmain.controllers.adminApi;
+package ru.practicum.ewmmain.controllers.admin_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewmmain.dto.compilation.CompilationDto;
 import ru.practicum.ewmmain.dto.compilation.NewCompilationDto;
@@ -14,7 +13,6 @@ import javax.validation.Valid;
 @RequestMapping(path = "/admin/compilations")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class AdminCompilationsController {
 
     private final CompilationService compilationService;
@@ -22,13 +20,13 @@ public class AdminCompilationsController {
     @PostMapping
     public CompilationDto createCompilation(@RequestBody @Valid NewCompilationDto newCompilationDto) {
         log.info("AdminCompilationsController POST createCompilation получен newCompilationDto: {}", newCompilationDto);
-        return compilationService.createCompilation(newCompilationDto);
+        return compilationService.add(newCompilationDto);
     }
 
     @DeleteMapping("/{compId}")
     public void deleteCompilation(@PathVariable long compId) {
         log.info("AdminCompilationsController DELETE deleteCompilation получен compId: {}", compId);
-        compilationService.deleteCompilation(compId);
+        compilationService.delete(compId);
     }
 
     @DeleteMapping("/{compId}/events/{eventId}")

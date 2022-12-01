@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 import ru.practicum.ewmmain.dto.location.LocationDto;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -12,19 +13,19 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ToString
 public class NewEventDto {
-    @NotEmpty
+    @NotBlank
     private String annotation;
     private Long category;
-    @NotEmpty
+    @NotBlank
     private String description;
-    @NotEmpty
+    @NotBlank
     private String eventDate;
     @NotNull
     private LocationDto location;
     private boolean paid;
     private int participantLimit;
     private boolean requestModeration;
-    @NotEmpty
+    @NotBlank
     private String title;
 
     public NewEventDto() {

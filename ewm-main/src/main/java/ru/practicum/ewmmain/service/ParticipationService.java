@@ -6,16 +6,16 @@ import ru.practicum.ewmmain.dto.participationRequest.ParticipationRequestDto;
 import java.util.List;
 
 public interface ParticipationService {
-    List<ParticipationRequestDto> getEventParticipationByInitiator(Long userId, Long eventId);
+    List<ParticipationRequestDto> getByInitiator(Long userId, Long eventId);
 
-    ParticipationRequestDto approveEventRequest(Long userId, Long eventId, Long reqId);
+    ParticipationRequestDto approve(Long userId, Long eventId, Long reqId);
 
-    ParticipationRequestDto rejectEventRequest(Long userId, Long eventId, Long reqId);
+    ParticipationRequestDto reject(Long userId, Long eventId, Long reqId);
 
-    List<ParticipationRequestDto> getRequestsByCurrentUser(Long userId);
+    List<ParticipationRequestDto> getByCurrentUser(Long userId);
 
-    ParticipationRequestDto addRequestByCurrentUser(long userId, long eventId);
+    ParticipationRequestDto addByCurrentUser(long userId, long eventId);
 
     @Transactional
-    ParticipationRequestDto cancelRequest(long userId, long requestId);
+    ParticipationRequestDto cancel(long userId, long requestId);
 }

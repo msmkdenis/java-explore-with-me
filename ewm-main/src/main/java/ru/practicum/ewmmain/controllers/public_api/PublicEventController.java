@@ -1,8 +1,7 @@
-package ru.practicum.ewmmain.controllers.publicApi;
+package ru.practicum.ewmmain.controllers.public_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@Validated
 @RequestMapping("/events")
 public class PublicEventController {
 
@@ -33,7 +31,7 @@ public class PublicEventController {
     ) {
         log.info("PublicEventController GET getEvent id: {}", id);
         statService.postHit(request);
-        return eventService.getEventById(id);
+        return eventService.getById(id);
     }
 
     @GetMapping
@@ -43,7 +41,7 @@ public class PublicEventController {
     ) {
         log.info("PublicEventController GET getAllEvents parameters: {}", parameters);
         statService.postHit(request);
-        return eventService.getAllEvents(parameters);
+        return eventService.getAllByPublicUser(parameters);
     }
 
 /*    @GetMapping

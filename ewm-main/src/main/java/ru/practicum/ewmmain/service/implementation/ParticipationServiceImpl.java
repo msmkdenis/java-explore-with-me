@@ -30,9 +30,9 @@ public class ParticipationServiceImpl implements ParticipationService {
     private final UserRepository userRepository;
 
     @Override
-    public List<ParticipationRequestDto> getEventParticipationByInitiator(Long userId, Long eventId) {
-        User user = checkUser(userId);
-        Event event = checkEvent(eventId);
+    public List<ParticipationRequestDto> getByInitiator(Long userId, Long eventId) {
+        User user = findUserOrThrow(userId);
+        Event event = findEventOrThrow(eventId);
         checkEventInitiator(user, event);
 
         return participationRepository.findAllByEventId(eventId).stream()
@@ -41,12 +41,12 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Transactional
     @Override
-    public ParticipationRequestDto approveEventRequest(Long userId, Long eventId, Long reqId) {
-        Event event = checkEvent(eventId);
-        User user = checkUser(userId);
+    public ParticipationRequestDto approve(Long userId, Long eventId, Long reqId) {
+        Event event = findEventOrThrow(eventId);
+        User user = findUserOrThrow(userId);
         checkEventInitiator(user, event);
 
-        ParticipationRequest participationRequest = checkParticipationRequest(reqId);
+        ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
 
         if (!participationRequest.getRequestStatus().equals(RequestStatus.PENDING)) {
             throw new ForbiddenError("Требуется статус PENDING");
@@ -72,11 +72,11 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Transactional
     @Override
-    public ParticipationRequestDto rejectEventRequest(Long userId, Long eventId, Long reqId) {
-        Event event = checkEvent(eventId);
-        User user = checkUser(userId);
+    public ParticipationRequestDto reject(Long userId, Long eventId, Long reqId) {
+        Event event = findEventOrThrow(eventId);
+        User user = findUserOrThrow(userId);
         checkEventInitiator(user, event);
-        ParticipationRequest participationRequest = checkParticipationRequest(reqId);
+        ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
 
 /*        if (participationRequest.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
             event.setConfirmedRequests(event.getConfirmedRequests() - 1);
@@ -87,8 +87,8 @@ public class ParticipationServiceImpl implements ParticipationService {
     }
 
     @Override
-    public List<ParticipationRequestDto> getRequestsByCurrentUser(Long userId) {
-        checkUser(userId);
+    public List<ParticipationRequestDto> getByCurrentUser(Long userId) {
+        findUserOrThrow(userId);
 
         return participationRepository.getAllByUserId(userId).stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto)
@@ -96,9 +96,9 @@ public class ParticipationServiceImpl implements ParticipationService {
     }
 
     @Override
-    public ParticipationRequestDto addRequestByCurrentUser(long userId, long eventId) {
-        Event event = checkEvent(eventId);
-        User user = checkUser(userId);
+    public ParticipationRequestDto addByCurrentUser(long userId, long eventId) {
+        Event event = findEventOrThrow(eventId);
+        User user = findUserOrThrow(userId);
         checkParticipationRequest(event, user);
         ParticipationRequest request = makeNewRequest(user, event);
 
@@ -107,9 +107,9 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     @Transactional
-    public ParticipationRequestDto cancelRequest(long userId, long requestId) {
-        ParticipationRequest request = checkParticipationRequest(requestId);
-        checkUser(userId);
+    public ParticipationRequestDto cancel(long userId, long requestId) {
+        ParticipationRequest request = findParticipationRequestOrThrow(requestId);
+        findUserOrThrow(userId);
 
 /*        if (request.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
             Event event = checkEvent(request.getEvent().getId());
@@ -129,17 +129,17 @@ public class ParticipationServiceImpl implements ParticipationService {
         }
     }
 
-    private Event checkEvent(Long id) {
+    private Event findEventOrThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Event id=%d не найден!", id)));
     }
 
-    private User checkUser(Long id) {
+    private User findUserOrThrow(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User id=%d не найден!", id)));
     }
 
-    private ParticipationRequest checkParticipationRequest(Long id) {
+    private ParticipationRequest findParticipationRequestOrThrow(Long id) {
         return participationRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("ParticipationRequest id=%d не найден!", id)));
     }

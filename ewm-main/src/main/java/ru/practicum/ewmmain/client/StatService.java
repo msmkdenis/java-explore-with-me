@@ -79,7 +79,6 @@ public class StatService {
         );
         ViewStats viewStats = new ViewStats();
         HttpEntity<ViewStats> request = new HttpEntity<>(viewStats, defaultHeaders());
-        log.info(url);
         return restTemplate.exchange(url, HttpMethod.GET, request, Object.class, parameters);
     }
 }

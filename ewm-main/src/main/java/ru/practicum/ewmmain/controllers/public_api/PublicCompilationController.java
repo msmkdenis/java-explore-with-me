@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.controllers.publicApi;
+package ru.practicum.ewmmain.controllers.public_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +27,12 @@ public class PublicCompilationController {
             @Positive @RequestParam(defaultValue = "10") int size
     ) {
         log.info("PublicCompilationController GET getAllCompilations pinned: {}, from: {}, size: {}", pinned, from, size);
-        return compilationService.getAllCompilations(pinned, from, size);
+        return compilationService.getAll(pinned, from, size);
     }
 
     @GetMapping("/{compId}")
     public CompilationDto getCompilationById(@PathVariable long compId) {
         log.info("PublicCompilationController GET getCompilationById id: {}", compId);
-        return compilationService.getCompilationById(compId);
+        return compilationService.getById(compId);
     }
 }

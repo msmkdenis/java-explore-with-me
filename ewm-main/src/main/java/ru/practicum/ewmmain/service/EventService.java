@@ -9,30 +9,30 @@ import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParame
 import java.util.List;
 
 public interface EventService {
-    EventFullDto addEvent(long userId, NewEventDto newEventDto);
+    EventFullDto add(long userId, NewEventDto newEventDto);
 
-    EventFullDto getEventById(long id);
+    EventFullDto getById(long id);
 
-    List<EventShortDto> getAllEvents(PublicEventsRequestParameters parameters);
+    List<EventShortDto> getAllByPublicUser(PublicEventsRequestParameters parameters);
 
     List<EventShortDto> getEventsByCurrentUser(long userId, int from, int size);
 
     @Transactional
-    EventFullDto updateEventByUser(long userId, @NonNull UpdateEventRequest updateEventRequest);
+    EventFullDto updateByUser(long userId, @NonNull UpdateEventRequest updateEventRequest);
 
     EventFullDto getUserEventById(long userId, long eventId);
 
     @Transactional
-    EventFullDto cancelEvent(long userId, long eventId);
+    EventFullDto cancel(long userId, long eventId);
 
-    List<EventFullDto> getAllEvents(AdminEventsRequestParameters parameters);
-
-    @Transactional
-    EventFullDto updateEventByAdmin(long eventId, @NonNull AdminUpdateEventRequest updateEventRequest);
+    List<EventFullDto> getAllEventsByAdmin(AdminEventsRequestParameters parameters);
 
     @Transactional
-    EventFullDto publishEvent(long eventId);
+    EventFullDto updateByAdmin(long eventId, @NonNull AdminUpdateEventRequest updateEventRequest);
 
     @Transactional
-    EventFullDto rejectEvent(long eventId);
+    EventFullDto publish(long eventId);
+
+    @Transactional
+    EventFullDto reject(long eventId);
 }

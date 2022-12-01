@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.controllers.privateApi;
+package ru.practicum.ewmmain.controllers.private_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class PrivateEventController {
             @RequestBody @Valid UpdateEventRequest updateEventRequest
     ) {
         log.info("PrivateEventController PATCH updateEventByUser userId: {}", userId);
-        return eventService.updateEventByUser(userId, updateEventRequest);
+        return eventService.updateByUser(userId, updateEventRequest);
     }
 
     @PostMapping
@@ -52,7 +52,7 @@ public class PrivateEventController {
             @RequestBody @Valid NewEventDto newEventDto
     ) {
         log.info("PrivateEventController POST addEvent получен newEventDto: {}", newEventDto);
-        return eventService.addEvent(userId, newEventDto);
+        return eventService.add(userId, newEventDto);
     }
 
     @GetMapping("/{eventId}")
@@ -70,7 +70,7 @@ public class PrivateEventController {
             @PathVariable long eventId
     ) {
         log.info("PrivateEventController PATCH cancelEvent userId: {} eventId: {}", userId, eventId);
-        return eventService.cancelEvent(userId, eventId);
+        return eventService.cancel(userId, eventId);
     }
 
     @GetMapping("/{eventId}/requests")
@@ -79,7 +79,7 @@ public class PrivateEventController {
             @PathVariable long eventId
     ) {
         log.info("PrivateEventController GET getEventParticipationByOwner userId: {} eventId: {}", userId, eventId);
-        return participationService.getEventParticipationByInitiator(userId, eventId);
+        return participationService.getByInitiator(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests/{reqId}/confirm")
@@ -89,7 +89,7 @@ public class PrivateEventController {
             @Positive @PathVariable("reqId") Long reqId
     ) {
         log.info("PrivateEventController PATCH approveEventRequest id = {}, user id = {}", reqId, userId);
-        return participationService.approveEventRequest(userId, eventId, reqId);
+        return participationService.approve(userId, eventId, reqId);
     }
 
     @PatchMapping("/{eventId}/requests/{reqId}/reject")
@@ -99,6 +99,6 @@ public class PrivateEventController {
             @Positive @PathVariable("reqId") Long reqId
     ) {
         log.info("PrivateEventController PATCH rejectEventRequest id = {}, user id = {}", reqId, userId);
-        return participationService.rejectEventRequest(userId, eventId, reqId);
+        return participationService.reject(userId, eventId, reqId);
     }
 }

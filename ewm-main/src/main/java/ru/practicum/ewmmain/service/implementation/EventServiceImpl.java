@@ -39,9 +39,9 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto addEvent(long userId, NewEventDto newEventDto) {
-        User initiator = checkUser(userId);
-        Category category = checkCategory(newEventDto.getCategory());
+    public EventFullDto add(long userId, NewEventDto newEventDto) {
+        User initiator = findUserOrThrow(userId);
+        Category category = findCategoryOrThrow(newEventDto.getCategory());
         Location location = LocationMapper.toLocation(newEventDto.getLocation());
         Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
         checkNewEventDate(event);
@@ -62,8 +62,8 @@ public class EventServiceImpl implements EventService {
     }*/
 
     @Override
-    public EventFullDto getEventById(long id) {
-        Event event = checkEvent(id);
+    public EventFullDto getById(long id) {
+        Event event = findEventOrThrow(id);
         checkEventStatus(event);
         //event.setViews(event.getViews() + 1);
         //log.info("Количество просмотров из клиента " + statService.getViews(id));
@@ -81,7 +81,7 @@ public class EventServiceImpl implements EventService {
     }*/
 
     @Override
-    public List<EventShortDto> getAllEvents(PublicEventsRequestParameters parameters) {
+    public List<EventShortDto> getAllByPublicUser(PublicEventsRequestParameters parameters) {
         List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
                 .stream()
                 .collect(Collectors.toList());
@@ -97,7 +97,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getEventsByCurrentUser(long userId, int from, int size) {
-        checkUser(userId);
+        findUserOrThrow(userId);
 
         return eventRepository.findAllByInitiatorId(userId, PageRequest.of(getPageNumber(from, size), size)).stream()
                 .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
@@ -106,8 +106,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventByUser(long userId, @NonNull UpdateEventRequest updateEventRequest) {
-        Event event = checkEvent(updateEventRequest.getEventId());
+    public EventFullDto updateByUser(long userId, @NonNull UpdateEventRequest updateEventRequest) {
+        Event event = findEventOrThrow(updateEventRequest.getEventId());
         checkNewEventDate(event);
         updateEventFieldsByUser(event, updateEventRequest);
 
@@ -116,8 +116,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getUserEventById(long userId, long eventId) {
-        User user = checkUser(userId);
-        Event event = checkEvent(eventId);
+        User user = findUserOrThrow(userId);
+        Event event = findEventOrThrow(eventId);
         checkEventInitiator(user, event);
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
@@ -125,9 +125,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto cancelEvent(long userId, long eventId) {
-        User user = checkUser(userId);
-        Event event = checkEvent(eventId);
+    public EventFullDto cancel(long userId, long eventId) {
+        User user = findUserOrThrow(userId);
+        Event event = findEventOrThrow(eventId);
         checkEventInitiator(user, event);
         event.setEventStatus(EventStatus.CANCELED);
 
@@ -135,7 +135,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getAllEvents(AdminEventsRequestParameters parameters) {
+    public List<EventFullDto> getAllEventsByAdmin(AdminEventsRequestParameters parameters) {
         return eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
                 .stream()
                 .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
@@ -144,8 +144,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto updateEventByAdmin(long eventId, @NonNull AdminUpdateEventRequest updateEventRequest) {
-        Event event = checkEvent(eventId);
+    public EventFullDto updateByAdmin(long eventId, @NonNull AdminUpdateEventRequest updateEventRequest) {
+        Event event = findEventOrThrow(eventId);
         updateEventFieldsByAdmin(event, updateEventRequest);
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
@@ -153,8 +153,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto publishEvent(long eventId) {
-        Event event = checkEvent(eventId);
+    public EventFullDto publish(long eventId) {
+        Event event = findEventOrThrow(eventId);
         checkEventForPublish(event);
         event.setEventStatus(EventStatus.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
@@ -164,30 +164,30 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto rejectEvent(long eventId) {
-        Event event = checkEvent(eventId);
+    public EventFullDto reject(long eventId) {
+        Event event = findEventOrThrow(eventId);
         checkEventForReject(event);
         event.setEventStatus(EventStatus.CANCELED);
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
-    private User checkUser(Long id) {
+    private User findUserOrThrow(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("User id=%d не найден!", id)));
     }
 
-    private Category checkCategory(Long id) {
+    private Category findCategoryOrThrow(Long id) {
         return categoryRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Category id=%d не найден!", id)));
     }
 
-    private Event checkEvent(Long id) {
+    private Event findEventOrThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Event id=%d не найден!", id)));
     }
 
-    private Location checkLocation(Long id) {
+    private Location findLocationOrThrow(Long id) {
         return locationRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Location id=%d не найден!", id)));
     }
@@ -252,7 +252,7 @@ public class EventServiceImpl implements EventService {
 
         Long categoryId = updateEventRequest.getCategory();
         if (categoryId != null) {
-            Category newCategory = checkCategory(categoryId);
+            Category newCategory = findCategoryOrThrow(categoryId);
             event.setCategory(newCategory);
         }
 
@@ -293,7 +293,7 @@ public class EventServiceImpl implements EventService {
 
         Long categoryId = updateEventRequest.getCategory();
         if (categoryId != null) {
-            Category newCategory = checkCategory(categoryId);
+            Category newCategory = findCategoryOrThrow(categoryId);
             event.setCategory(newCategory);
         }
 
@@ -309,7 +309,7 @@ public class EventServiceImpl implements EventService {
 
         LocationDto location = updateEventRequest.getLocation();
         if (location != null) {
-            Location newLocation = checkLocation(event.getLocation().getId());
+            Location newLocation = findLocationOrThrow(event.getLocation().getId());
             newLocation.setLat(location.getLat());
             newLocation.setLon(location.getLon());
         }

@@ -1,8 +1,7 @@
-package ru.practicum.ewmmain.controllers.adminApi;
+package ru.practicum.ewmmain.controllers.admin_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewmmain.dto.category.CategoryDto;
 import ru.practicum.ewmmain.dto.category.NewCategoryDto;
@@ -14,7 +13,6 @@ import javax.validation.Valid;
 @RequestMapping(path = "/admin/categories")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class AdminCategoryController {
 
     private final CategoryService categoryService;
@@ -24,7 +22,7 @@ public class AdminCategoryController {
             @RequestBody @Valid NewCategoryDto newCategoryDto
     ) {
         log.info("adminCategoryController POST addCategory получен NewCategoryDto: {}", newCategoryDto);
-        return categoryService.addCategory(newCategoryDto);
+        return categoryService.add(newCategoryDto);
     }
 
     @PatchMapping
@@ -32,12 +30,12 @@ public class AdminCategoryController {
             @RequestBody @Valid CategoryDto categoryDto
     ) {
         log.info("adminCategoryController PATCH updateCategory получен CategoryDto: {}", categoryDto);
-        return categoryService.updateCategory(categoryDto);
+        return categoryService.update(categoryDto);
     }
 
     @DeleteMapping("/{catId}")
     public void deleteCategory(@PathVariable long catId) {
         log.info("adminCategoryController DELETE deleteCategory получен catId: {}", catId);
-        categoryService.deleteCategory(catId);
+        categoryService.delete(catId);
     }
 }

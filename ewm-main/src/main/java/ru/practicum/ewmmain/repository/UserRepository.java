@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select u from User u where u.id in ?1 order by u.id")
     List<User> findUsersByIds(List<Long> ids, Pageable pageable);
+
+    Boolean existsByName(String name);
 }

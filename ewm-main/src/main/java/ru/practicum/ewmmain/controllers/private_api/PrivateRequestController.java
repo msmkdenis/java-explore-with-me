@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.controllers.privateApi;
+package ru.practicum.ewmmain.controllers.private_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ public class PrivateRequestController {
             @Positive @PathVariable("userId") Long userId
     ) {
         log.info("PrivateRequestController GET getRequestsByCurrentUser userId: {}", userId);
-        return participationService.getRequestsByCurrentUser(userId);
+        return participationService.getByCurrentUser(userId);
     }
 
     @PostMapping
@@ -33,7 +33,7 @@ public class PrivateRequestController {
             @RequestParam long eventId
     ) {
         log.info("PrivateRequestController POST addRequestByCurrentUser userId: {}, eventId: {}", userId, eventId);
-        return participationService.addRequestByCurrentUser(userId, eventId);
+        return participationService.addByCurrentUser(userId, eventId);
     }
 
     @PatchMapping("/{requestId}/cancel")
@@ -42,7 +42,7 @@ public class PrivateRequestController {
             @PathVariable long requestId
     ) {
         log.info("PrivateRequestController PATCH cancelRequest userId: {}, requestId: {}", userId, requestId);
-        return participationService.cancelRequest(userId, requestId);
+        return participationService.cancel(userId, requestId);
     }
 
 }
