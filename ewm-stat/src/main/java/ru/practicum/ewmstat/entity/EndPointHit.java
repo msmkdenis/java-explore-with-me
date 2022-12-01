@@ -22,8 +22,8 @@ public class EndPointHit {
     @Column(name = "hits_id")
     private Long id;
 
-    @Column(name = "app", length = 50, nullable = false)
-    private String app;
+    @Column(name = "app_id", nullable = false)
+    private Long appId;
 
     @Column(name = "uri", length = 254)
     private String uri;

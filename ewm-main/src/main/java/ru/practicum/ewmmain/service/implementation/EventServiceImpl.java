@@ -54,9 +54,6 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getById(long id) {
         Event event = findEventOrThrow(id);
         checkEventStatus(event);
-        //event.setViews(event.getViews() + 1);
-        //log.info("Количество просмотров из клиента " + statService.getViews(id));
-        //log.info("Количество просмотров из сущности " + event.getViews());
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }

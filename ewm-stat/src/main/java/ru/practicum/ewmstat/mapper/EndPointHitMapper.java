@@ -8,19 +8,19 @@ import ru.practicum.ewmstat.entity.EndPointHit;
 @UtilityClass
 public class EndPointHitMapper {
 
-    public static EndPointHit toEndPointHit(NewEndPointHitDto newEndPointHitDto) {
+    public static EndPointHit toEndPointHit(NewEndPointHitDto newEndPointHitDto, long appId) {
         return EndPointHit.builder()
-                .app(newEndPointHitDto.getApp())
+                .appId(appId)
                 .ip(newEndPointHitDto.getIp())
                 .uri(newEndPointHitDto.getUri())
                 .timestamp(newEndPointHitDto.getTimestamp())
                 .build();
     }
 
-    public static EndPointHitDto toEndPointHitDto(EndPointHit endPointHit) {
+    public static EndPointHitDto toEndPointHitDto(EndPointHit endPointHit, String appName) {
         return EndPointHitDto.builder()
                 .id(endPointHit.getId())
-                .app(endPointHit.getApp())
+                .app(appName)
                 .ip(endPointHit.getIp())
                 .uri(endPointHit.getUri())
                 .timestamp(endPointHit.getTimestamp())

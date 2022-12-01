@@ -5,10 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewmstat.dto.NewEndPointHitDto;
 import ru.practicum.ewmstat.dto.ViewStatsDto;
+import ru.practicum.ewmstat.entity.App;
 import ru.practicum.ewmstat.entity.EndPointHit;
 import ru.practicum.ewmstat.entity.ViewStats;
+import ru.practicum.ewmstat.exception.EntityNotFoundException;
 import ru.practicum.ewmstat.mapper.EndPointHitMapper;
 import ru.practicum.ewmstat.mapper.ViewStatsMapper;
+import ru.practicum.ewmstat.repository.AppRepository;
 import ru.practicum.ewmstat.repository.StatRepository;
 import ru.practicum.ewmstat.specification.StatRequestParameters;
 
@@ -24,10 +27,12 @@ import java.util.stream.Collectors;
 public class StatServiceImpl implements StatService {
 
     private final StatRepository statRepository;
+    private final AppRepository appRepository;
 
     @Override
     public void saveHit(@NonNull NewEndPointHitDto hit) {
-        statRepository.save(EndPointHitMapper.toEndPointHit(hit));
+        App app = appRepository.save(App.builder().name(hit.getApp()).build());
+        statRepository.save(EndPointHitMapper.toEndPointHit(hit, app.getId()));
     }
 
     @Override
@@ -53,9 +58,14 @@ public class StatServiceImpl implements StatService {
 
     private ViewStats mapHitToView(@NonNull EndPointHit hit) {
         return ViewStats.builder()
-                .app(hit.getApp())
+                .app(findAppOrThrow(hit.getAppId()).getName())
                 .uri(hit.getUri())
                 .build();
+    }
+
+    private App findAppOrThrow(Long appId) {
+        return appRepository.findById(appId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("App id=%d не найден!", appId)));
     }
 
     private static <T> Predicate<T> distinctByKey(
