@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.ewmstat.dto.NewEndPointHitDto;
+import ru.practicum.ewmstat.dto.ViewStatsDto;
 import ru.practicum.ewmstat.entity.EndPointHit;
 import ru.practicum.ewmstat.entity.ViewStats;
 import ru.practicum.ewmstat.service.StatService;
@@ -23,13 +25,13 @@ public class StatController {
     private final StatService statService;
 
     @PostMapping("/hit")
-    public void saveHit(@RequestBody EndPointHit hit) {
+    public void saveHit(@RequestBody NewEndPointHitDto hit) {
         log.info("Получен объект EndPointHit hit: {} ", hit);
         statService.saveHit(hit);
     }
 
     @GetMapping("/stats")
-    public List<ViewStats> getStats(StatRequestParameters parameters) {
+    public List<ViewStatsDto> getStats(StatRequestParameters parameters) {
         return statService.getStats(parameters);
     }
 }

@@ -1,6 +1,7 @@
 package ru.practicum.ewmmain.client;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -21,17 +22,27 @@ import java.util.Map;
 public class StatService {
 
     private final RestTemplate restTemplate;
-
     @Value("${ewm-stat.url}")
-    private String statUrl;
+    private final String statUrl;
+    @Value("${whole-app.name}")
+    private final String appName;
 
-    public StatService() {
-        this.restTemplate = new RestTemplate();
+    public StatService(
+            RestTemplate restTemplate,
+            @Value("${ewm-stat.url}") String statUrl,
+            @Value("${whole-app.name}") String appName) {
+        this.restTemplate = restTemplate;
+        this.statUrl = statUrl;
+        this.appName = appName;
     }
+
+/*    public StatService() {
+        this.restTemplate = new RestTemplate();
+    }*/
 
     public void postHit(@NonNull HttpServletRequest request) {
         EndpointHitDto hitDto = new EndpointHitDto();
-        hitDto.setApp("explore-with-me");
+        hitDto.setApp(appName);
         hitDto.setUri(request.getRequestURI());
         hitDto.setIp(request.getRemoteAddr());
         hitDto.setTimestamp(LocalDateTime.now());

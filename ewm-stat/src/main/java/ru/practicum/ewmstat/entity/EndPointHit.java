@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @Entity(name = "hits")
 @Table(name = "hits")
-@ToString
+@Builder
 public class EndPointHit {
 
     @Id

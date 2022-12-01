@@ -1,11 +1,13 @@
-package ru.practicum.ewmstat.entity;
+package ru.practicum.ewmstat.dto;
 
 import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ViewStats {
+public class ViewStatsDto {
     private String app;
     private String uri;
     private Long hits;

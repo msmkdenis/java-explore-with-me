@@ -24,7 +24,7 @@ public class EventMapper {
                 .category(category)
                 .createdOn(LocalDateTime.now())
                 .description(newEventDto.getDescription())
-                .eventDate(LocalDateTime.parse(newEventDto.getEventDate(), DATE_TIME_FORMATTER))
+                .eventDate(newEventDto.getEventDate())
                 .initiator(initiator)
                 .location(location)
                 .paid(newEventDto.isPaid())

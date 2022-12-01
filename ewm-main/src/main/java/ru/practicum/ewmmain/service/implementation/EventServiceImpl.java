@@ -40,11 +40,11 @@ public class EventServiceImpl implements EventService {
     @Transactional
     @Override
     public EventFullDto add(long userId, NewEventDto newEventDto) {
+        checkNewEventDate(newEventDto.getEventDate());
         User initiator = findUserOrThrow(userId);
         Category category = findCategoryOrThrow(newEventDto.getCategory());
         Location location = LocationMapper.toLocation(newEventDto.getLocation());
         Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
-        checkNewEventDate(event);
         locationRepository.save(location);
         eventRepository.save(event);
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
@@ -108,7 +108,7 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto updateByUser(long userId, @NonNull UpdateEventRequest updateEventRequest) {
         Event event = findEventOrThrow(updateEventRequest.getEventId());
-        checkNewEventDate(event);
+        checkNewEventDate(updateEventRequest.getEventDate());
         updateEventFieldsByUser(event, updateEventRequest);
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
@@ -200,11 +200,9 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkNewEventDate(@NonNull Event event) {
-        if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenError(
-                    String.format("До события %s осталось меньше 2 часов!", event.getTitle())
-            );
+    private void checkNewEventDate(@NonNull LocalDateTime eventDate) {
+        if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new ForbiddenError("До события осталось меньше 2 часов!");
         }
     }
 
@@ -246,7 +244,7 @@ public class EventServiceImpl implements EventService {
         event.setEventStatus(EventStatus.PENDING);
 
         String annotation = updateEventRequest.getAnnotation();
-        if (annotation != null) {
+        if (!annotation.isBlank()) {
             event.setAnnotation(annotation);
         }
 
@@ -257,14 +255,14 @@ public class EventServiceImpl implements EventService {
         }
 
         String description = updateEventRequest.getDescription();
-        if (description != null) {
+        if (!description.isBlank()) {
             event.setDescription(description);
         }
 
-        String eventDate = updateEventRequest.getEventDate();
+        LocalDateTime eventDate = updateEventRequest.getEventDate();
         if (eventDate != null) {
-            event.setEventDate(LocalDateTime.parse(eventDate, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            checkNewEventDate(event);
+            event.setEventDate(eventDate);
+            checkNewEventDate(event.getEventDate());
         }
 
         Boolean paid = updateEventRequest.getPaid();
@@ -278,7 +276,7 @@ public class EventServiceImpl implements EventService {
         }
 
         String title = updateEventRequest.getTitle();
-        if (title != null) {
+        if (!title.isBlank()) {
             event.setTitle(title);
         }
     }
@@ -287,7 +285,7 @@ public class EventServiceImpl implements EventService {
 
         String annotation = updateEventRequest.getAnnotation();
 
-        if (annotation != null) {
+        if (!annotation.isBlank()) {
             event.setAnnotation(annotation);
         }
 
@@ -298,7 +296,7 @@ public class EventServiceImpl implements EventService {
         }
 
         String description = updateEventRequest.getDescription();
-        if (description != null) {
+        if (!description.isBlank()) {
             event.setDescription(description);
         }
 
@@ -309,7 +307,7 @@ public class EventServiceImpl implements EventService {
 
         LocationDto location = updateEventRequest.getLocation();
         if (location != null) {
-            Location newLocation = findLocationOrThrow(event.getLocation().getId());
+            Location newLocation = findLocationOrThrow((event.getLocation().getId()));
             newLocation.setLat(location.getLat());
             newLocation.setLon(location.getLon());
         }
@@ -330,7 +328,7 @@ public class EventServiceImpl implements EventService {
         }
 
         String title = updateEventRequest.getTitle();
-        if (title != null) {
+        if (!title.isBlank()) {
             event.setTitle(title);
         }
     }
