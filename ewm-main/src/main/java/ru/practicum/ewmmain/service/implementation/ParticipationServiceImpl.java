@@ -59,7 +59,6 @@ public class ParticipationServiceImpl implements ParticipationService {
 
         checkRequestLimit(event);
         participationRequest.setRequestStatus(RequestStatus.CONFIRMED);
-        //event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         long quantity = participationRepository.quantityEventRequests(event.getId(), List.of(RequestStatus.CONFIRMED));
 
         if (quantity == event.getParticipantLimit()) {
@@ -77,10 +76,6 @@ public class ParticipationServiceImpl implements ParticipationService {
         User user = findUserOrThrow(userId);
         checkEventInitiator(user, event);
         ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
-
-/*        if (participationRequest.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
-            event.setConfirmedRequests(event.getConfirmedRequests() - 1);
-        }*/
         participationRequest.setRequestStatus(RequestStatus.REJECTED);
 
         return ParticipationRequestMapper.toParticipationRequestDto(participationRequest);
@@ -110,12 +105,6 @@ public class ParticipationServiceImpl implements ParticipationService {
     public ParticipationRequestDto cancel(long userId, long requestId) {
         ParticipationRequest request = findParticipationRequestOrThrow(requestId);
         findUserOrThrow(userId);
-
-/*        if (request.getRequestStatus().equals(RequestStatus.CONFIRMED)) {
-            Event event = checkEvent(request.getEvent().getId());
-            event.setConfirmedRequests(event.getConfirmedRequests() - 1);
-        }*/
-
         request.setRequestStatus(RequestStatus.CANCELED);
 
         return ParticipationRequestMapper.toParticipationRequestDto(request);

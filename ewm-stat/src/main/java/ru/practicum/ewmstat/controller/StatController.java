@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.ewmstat.dto.NewEndPointHitDto;
 import ru.practicum.ewmstat.dto.ViewStatsDto;
-import ru.practicum.ewmstat.entity.EndPointHit;
-import ru.practicum.ewmstat.entity.ViewStats;
 import ru.practicum.ewmstat.service.StatService;
 import ru.practicum.ewmstat.specification.StatRequestParameters;
 

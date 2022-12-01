@@ -6,9 +6,6 @@ import ru.practicum.ewmmain.dto.user.UserShortDto;
 import ru.practicum.ewmmain.entity.EventStatus;
 import ru.practicum.ewmmain.entity.Location;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
 
 @Getter
 @Setter

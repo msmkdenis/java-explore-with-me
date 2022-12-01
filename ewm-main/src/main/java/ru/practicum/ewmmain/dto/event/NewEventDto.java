@@ -20,8 +20,6 @@ public class NewEventDto {
     @NotBlank
     @Size(max = 7000)
     private String description;
-    /*    @NotBlank
-        private String eventDate;*/
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull
     @Future

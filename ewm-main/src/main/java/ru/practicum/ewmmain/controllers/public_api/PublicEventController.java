@@ -43,31 +43,4 @@ public class PublicEventController {
         statService.postHit(request);
         return eventService.getAllByPublicUser(parameters);
     }
-
-/*    @GetMapping
-    public List<EventShortDto> getAllEvents(
-            @RequestParam(required = false) String text,
-            @RequestParam(required = false) List<Long> categories,
-            @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) String rangeStart,
-            @RequestParam(required = false) String rangeEnd,
-            @RequestParam(defaultValue = "false") boolean onlyAvailable,
-            @RequestParam(defaultValue = "EVENT_DATE") EventSortType sort,
-            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-            @RequestParam(defaultValue = "10") @Positive int size,
-            HttpServletRequest request
-    ) {
-        PublicEventsRequestParameters parameters =
-                PublicEventsRequestParameters.builder()
-                        .text(text)
-                        .categories(categories)
-                        .paid(paid)
-                        .rangeStart(rangeStart)
-                        .rangeEnd(rangeEnd)
-                        .onlyAvailable(onlyAvailable)
-                                .
-        log.info("PublicEventController GET getAllEvents parameters: {}", parameters);
-        statService.postHit(request);
-        return eventService.getAllEvents(parameters);
-    }*/
 }

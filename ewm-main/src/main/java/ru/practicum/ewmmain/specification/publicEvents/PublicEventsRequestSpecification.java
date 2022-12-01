@@ -17,7 +17,6 @@ import java.util.List;
 public class PublicEventsRequestSpecification implements Specification<Event> {
 
     private PublicEventsRequestParameters parameters;
-    //private final ParticipationRepository participationRepository;
 
     public static final String DATE_TIME_STRING = "yyyy-MM-dd HH:mm:ss";
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_STRING);
@@ -65,28 +64,6 @@ public class PublicEventsRequestSpecification implements Specification<Event> {
                     cb.lessThanOrEqualTo(root.get("eventDate"), end)
             );
         }
-
-/*        Boolean onlyAvailable = parameters.getOnlyAvailable();
-        if (onlyAvailable != null) {
-            predicates.add(
-                    cb.or(
-                            cb.greaterThan(root.get("participantLimit"), root.get("confirmed_requests")),
-                            cb.equal(root.get("participantLimit"), 0)
-                    )
-            );
-        }*/
-
-/*        EventSortType sortType = parameters.getSort();
-        if (sortType != null) {
-            switch (sortType) {
-                case EVENT_DATE:
-                    query.orderBy(cb.asc(root.get("eventDate")));
-                    break;
-                case VIEWS:
-                    query.orderBy(cb.desc(root.get("views")));
-                    break;
-            }
-        }*/
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }

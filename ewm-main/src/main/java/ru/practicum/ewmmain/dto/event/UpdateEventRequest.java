@@ -23,7 +23,6 @@ public class UpdateEventRequest {
     private Long category;
     @Size(max = 7000)
     private String description;
-    //private String eventDate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @Future
     @Nullable

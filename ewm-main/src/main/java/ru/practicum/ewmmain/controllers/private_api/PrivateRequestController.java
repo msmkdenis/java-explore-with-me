@@ -44,5 +44,4 @@ public class PrivateRequestController {
         log.info("PrivateRequestController PATCH cancelRequest userId: {}, requestId: {}", userId, requestId);
         return participationService.cancel(userId, requestId);
     }
-
 }

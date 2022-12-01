@@ -2,8 +2,6 @@ package ru.practicum.ewmmain.dto.user;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-
 @Getter
 @Setter
 @NoArgsConstructor

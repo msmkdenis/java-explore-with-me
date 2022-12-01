@@ -50,17 +50,6 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
 
-/*    @Override
-    public EventFullDto getEventById(long id) {
-        Event event = checkEvent(id);
-        checkEventStatus(event);
-        event.setViews(event.getViews() + 1);
-        log.info("Количество просмотров из клиента " + statService.getViews(id));
-        log.info("Количество просмотров из сущности " + event.getViews());
-
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()));
-    }*/
-
     @Override
     public EventFullDto getById(long id) {
         Event event = findEventOrThrow(id);
@@ -71,14 +60,6 @@ public class EventServiceImpl implements EventService {
 
         return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
     }
-
-/*    @Override
-    public List<EventShortDto> getAllEvents(PublicEventsRequestParameters parameters) {
-        return eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
-                .stream()
-                .map(event -> EventMapper.toEventShortDto(event, getConfirmedRequests(event.getId())))
-                .collect(Collectors.toList());
-    }*/
 
     @Override
     public List<EventShortDto> getAllByPublicUser(PublicEventsRequestParameters parameters) {

@@ -51,14 +51,6 @@ public class StatServiceImpl implements StatService {
         }
     }
 
-/*    private ViewStats mapHitToView(@NonNull EndPointHit hit) {
-        ViewStats viewStats = new ViewStats();
-        viewStats.setApp(hit.getApp());
-        viewStats.setUri(hit.getUri());
-
-        return viewStats;
-    }*/
-
     private ViewStats mapHitToView(@NonNull EndPointHit hit) {
         return ViewStats.builder()
                 .app(hit.getApp())

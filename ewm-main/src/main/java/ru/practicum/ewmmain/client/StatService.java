@@ -1,7 +1,6 @@
 package ru.practicum.ewmmain.client;
 
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -35,10 +34,6 @@ public class StatService {
         this.statUrl = statUrl;
         this.appName = appName;
     }
-
-/*    public StatService() {
-        this.restTemplate = new RestTemplate();
-    }*/
 
     public void postHit(@NonNull HttpServletRequest request) {
         EndpointHitDto hitDto = new EndpointHitDto();
