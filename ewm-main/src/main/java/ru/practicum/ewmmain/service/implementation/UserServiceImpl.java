@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getByIds(List<Long> ids, int from, int size) {
-        if (ids == null) {
+        if (ids == null || ids.isEmpty()) {
             return userRepository.findAll(PageRequest.of(getPageNumber(from, size), size))
                     .stream()
                     .map(UserMapper::toUserDto)

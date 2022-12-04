@@ -2,6 +2,7 @@ package ru.practicum.ewmmain.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -43,6 +44,14 @@ public class ErrorHandler {
         log.error("ForbiddenError. Произошла ошибка {}, статус ошибки {}", exception.getMessage(),
                 HttpStatus.FORBIDDEN);
         return new ApiError(exception, "Не выполнены условия для совершения операции.", HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException exception) {
+        log.error("ConflictError. Произошла ошибка {}, статус ошибки {}", exception.getMessage(),
+                HttpStatus.CONFLICT);
+        return new ApiError(exception, "Запрос приводит к нарушению целостности данных.", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler

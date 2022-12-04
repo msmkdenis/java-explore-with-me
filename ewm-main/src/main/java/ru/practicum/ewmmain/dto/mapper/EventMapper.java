@@ -62,7 +62,7 @@ public class EventMapper {
                 .annotation(event.getAnnotation())
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .confirmedRequests(requests)
-                .eventDate(event.getEventDate().format(DATE_TIME_FORMATTER))
+                .eventDate(event.getEventDate())
                 .initiator(UserMapper.userShortDto(event.getInitiator()))
                 .paid(event.isPaid())
                 .title(event.getTitle())

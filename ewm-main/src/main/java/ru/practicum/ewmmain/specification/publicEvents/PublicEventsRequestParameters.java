@@ -5,6 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Getter
@@ -28,8 +30,10 @@ public class PublicEventsRequestParameters {
 
     private EventSortType sort;
 
+    @Positive
     private int from;
 
+    @Size(min = 1)
     private int size;
 
     public PublicEventsRequestParameters() {

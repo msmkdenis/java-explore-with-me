@@ -31,9 +31,9 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     public List<ParticipationRequestDto> getByInitiator(Long userId, Long eventId) {
-        User user = findUserOrThrow(userId);
-        Event event = findEventOrThrow(eventId);
-        checkEventInitiator(user, event);
+/*      User user = findUserOrThrow(userId);
+        Event event = findEventOrThrow(eventId);*/
+        checkEventInitiator(eventId, userId);
 
         return participationRepository.findAllByEventId(eventId).stream()
                 .map(ParticipationRequestMapper::toParticipationRequestDto).collect(Collectors.toList());
@@ -42,9 +42,9 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Transactional
     @Override
     public ParticipationRequestDto approve(Long userId, Long eventId, Long reqId) {
+        checkEventInitiator(eventId, userId);
         Event event = findEventOrThrow(eventId);
         User user = findUserOrThrow(userId);
-        checkEventInitiator(user, event);
 
         ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
 
@@ -74,7 +74,7 @@ public class ParticipationServiceImpl implements ParticipationService {
     public ParticipationRequestDto reject(Long userId, Long eventId, Long reqId) {
         Event event = findEventOrThrow(eventId);
         User user = findUserOrThrow(userId);
-        checkEventInitiator(user, event);
+        checkEventInitiator(eventId, userId);
         ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
         participationRequest.setRequestStatus(RequestStatus.REJECTED);
 
@@ -110,13 +110,21 @@ public class ParticipationServiceImpl implements ParticipationService {
         return ParticipationRequestMapper.toParticipationRequestDto(request);
     }
 
-    private void checkEventInitiator(@NonNull User user, @NonNull Event event) {
+    private void checkEventInitiator(@NonNull Long eventId, @NonNull Long userId) {
+        Event event = eventRepository.findByIdAndAndInitiatorId(eventId, userId);
+        if (event == null) {
+            throw new ForbiddenError(
+                    String.format("User id=%d не является инициатором события id=%d", userId, eventId));
+        }
+    }
+
+/*    private void checkEventInitiator(@NonNull User user, @NonNull Event event) {
         if (!Objects.equals(user.getId(), event.getInitiator().getId())) {
             throw new ForbiddenError(
                     String.format("User id=%d не является инициатором события id=%d", user.getId(), event.getId())
             );
         }
-    }
+    }*/
 
     private Event findEventOrThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(

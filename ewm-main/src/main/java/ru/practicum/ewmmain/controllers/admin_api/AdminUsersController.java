@@ -2,6 +2,7 @@ package ru.practicum.ewmmain.controllers.admin_api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewmmain.dto.user.NewUserRequest;
 import ru.practicum.ewmmain.dto.user.UserDto;
@@ -16,6 +17,7 @@ import java.util.List;
 @RequestMapping(path = "/admin/users")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class AdminUsersController {
 
     private final UserService userService;

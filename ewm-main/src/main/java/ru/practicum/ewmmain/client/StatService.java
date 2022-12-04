@@ -24,9 +24,7 @@ import java.util.stream.Collectors;
 public class StatService {
 
     private final RestTemplate restTemplate;
-    @Value("${ewm-stat.url}")
     private final String statUrl;
-    @Value("${whole-app.name}")
     private final String appName;
 
     private static final String GET_STAT_ENDPOINT = "/stats?start={rangeStart}&end={rangeEnd}&uris={uris}";
@@ -96,7 +94,7 @@ public class StatService {
         return eventsStat.stream().collect(
                 Collectors.toMap(
                         view -> {
-                            var eventIdString = view.getUri().substring(EVENT_BASE_URI.length());
+                            String eventIdString = view.getUri().substring(EVENT_BASE_URI.length());
                             return Long.parseLong(eventIdString);
                         },
                         ViewStats::getHits));

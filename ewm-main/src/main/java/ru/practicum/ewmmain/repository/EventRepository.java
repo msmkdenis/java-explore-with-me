@@ -21,4 +21,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     @Query("select (count(e) > 0) from Event e where e.category.id = ?1")
     boolean areEventsWithCategory(Long catId);
+
+    @Query("select e from Event e where e.id = ?1 and e.initiator.id = ?2")
+    Event findByIdAndAndInitiatorId(Long eventId, Long userId);
 }
