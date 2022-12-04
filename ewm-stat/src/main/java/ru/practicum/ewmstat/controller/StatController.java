@@ -30,6 +30,7 @@ public class StatController {
 
     @GetMapping("/stats")
     public List<ViewStatsDto> getStats(StatRequestParameters parameters) {
+        log.info("Получен запрос: {} ", parameters);
         return statService.getStats(parameters);
     }
 }

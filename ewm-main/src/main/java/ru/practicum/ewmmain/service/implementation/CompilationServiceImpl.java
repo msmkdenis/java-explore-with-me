@@ -15,7 +15,7 @@ import ru.practicum.ewmmain.dto.mapper.CompilationMapper;
 import ru.practicum.ewmmain.dto.mapper.EventMapper;
 import ru.practicum.ewmmain.entity.Compilation;
 import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.entity.RequestStatus;
+import ru.practicum.ewmmain.entity.RequestQuantity;
 import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.exception.ForbiddenError;
 import ru.practicum.ewmmain.repository.CompilationRepository;
@@ -23,7 +23,9 @@ import ru.practicum.ewmmain.repository.EventRepository;
 import ru.practicum.ewmmain.repository.ParticipationRepository;
 import ru.practicum.ewmmain.service.CompilationService;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,17 +53,29 @@ public class CompilationServiceImpl implements CompilationService {
             );
         }
 
+        Set<Event> events = compilations.stream().flatMap(compilation -> compilation.getEvents().stream())
+                .collect(Collectors.toSet());
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
         return compilations
                 .stream()
-                .map(compilation -> CompilationMapper.toCompilationDto(compilation, getEventShortDto(compilation)))
+                .map(compilation -> CompilationMapper.toCompilationDto(
+                        compilation,
+                        getEventShortDto(compilation, confirmedRequests, views)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public CompilationDto getById(long id) {
         Compilation compilation = findCompilationOrThrow(id);
+        Set<Event> events = compilation.getEvents();
 
-        return CompilationMapper.toCompilationDto(compilation, getEventShortDto(compilation));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
+        return CompilationMapper.toCompilationDto(compilation,
+                getEventShortDto(compilation, confirmedRequests, views));
     }
 
     @Override
@@ -70,7 +84,11 @@ public class CompilationServiceImpl implements CompilationService {
         Set<Event> events = eventRepository.getEventsByIds(newCompilationDto.getEvents());
         compilation.setEvents(events);
 
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation), getEventShortDto(compilation));
+        Map<Long, Long> confirmedRequests = getConfirmedRequests(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
+        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation),
+                getEventShortDto(compilation, confirmedRequests, views));
     }
 
     @Override
@@ -129,18 +147,26 @@ public class CompilationServiceImpl implements CompilationService {
         return from / size;
     }
 
-    private int getConfirmedRequests(long eventId) {
-        return participationRepository.countByEventIdAndRequestStatus(eventId, RequestStatus.CONFIRMED);
-    }
+    private Set<EventShortDto> getEventShortDto(Compilation compilation,
+                                                Map<Long, Long> confirmedRequests,
+                                                Map<Object, Integer> views
+    ) {
 
-    private Set<EventShortDto> getEventShortDto(Compilation compilation) {
         Set<Event> events = compilation.getEvents();
+
         return events.stream()
-                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
+                .map(event -> EventMapper.toEventShortDto(
+                        event,
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toSet());
     }
 
-    private int getViews(long eventId) {
-        return statService.getViews(eventId);
+    private Map<Long, Long> getConfirmedRequests(Collection<Event> events) {
+        List<RequestQuantity> requestQuantities = participationRepository.countRequestsForEvents(events);
+
+        return requestQuantities.stream()
+                .collect(Collectors
+                        .toMap(RequestQuantity::getRequestId, RequestQuantity::getRequestQuantity));
     }
 }

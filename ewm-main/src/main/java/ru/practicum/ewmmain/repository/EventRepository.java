@@ -16,9 +16,9 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     List<Event> findAllByInitiatorId(Long userId, Pageable pageable);
 
-    @Query("select e from events e where e.id in ?1")
+    @Query("select e from Event e where e.id in ?1")
     Set<Event> getEventsByIds(Collection<Long> ids);
 
-    @Query("select (count(e) > 0) from events e where e.category.id = ?1")
+    @Query("select (count(e) > 0) from Event e where e.category.id = ?1")
     boolean areEventsWithCategory(Long catId);
 }

@@ -21,7 +21,9 @@ import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParame
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -47,7 +49,8 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
         locationRepository.save(location);
         eventRepository.save(event);
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+
+        return getEventFullDto(event);
     }
 
     @Override
@@ -55,7 +58,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventOrThrow(id);
         checkEventStatus(event);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Override
@@ -63,22 +66,37 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
                 .stream()
                 .collect(Collectors.toList());
+
+        Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
         if (parameters.getOnlyAvailable()) {
             events = events.stream()
-                    .filter(event -> event.getParticipantLimit() > getConfirmedRequests(event.getId()))
+                    .filter(e -> e.getParticipantLimit() > Math.toIntExact(confirmedRequests.getOrDefault(e.getId(),0L)))
                     .collect(Collectors.toList());
         }
+
         return events.stream()
-                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
+                .map(event -> EventMapper.toEventShortDto(
+                        event,
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<EventShortDto> getEventsByCurrentUser(long userId, int from, int size) {
         findUserOrThrow(userId);
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, PageRequest.of(getPageNumber(from, size), size));
 
-        return eventRepository.findAllByInitiatorId(userId, PageRequest.of(getPageNumber(from, size), size)).stream()
-                .map(e -> EventMapper.toEventShortDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
+        Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
+        return events.stream()
+                .map(event -> EventMapper.toEventShortDto(
+                        event,
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
 
@@ -89,7 +107,7 @@ public class EventServiceImpl implements EventService {
         checkNewEventDate(updateEventRequest.getEventDate());
         updateEventFieldsByUser(event, updateEventRequest);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Override
@@ -98,7 +116,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventOrThrow(eventId);
         checkEventInitiator(user, event);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Override
@@ -109,14 +127,22 @@ public class EventServiceImpl implements EventService {
         checkEventInitiator(user, event);
         event.setEventStatus(EventStatus.CANCELED);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Override
     public List<EventFullDto> getAllEventsByAdmin(AdminEventsRequestParameters parameters) {
-        return eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
-                .stream()
-                .map(e -> EventMapper.toEventFullDto(e, getConfirmedRequests(e.getId()), getViews(e.getId())))
+        List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable()).
+                stream().collect(Collectors.toList());
+
+        Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
+        Map<Object, Integer> views = statService.getStatisticsByEvents(events);
+
+        return events.stream()
+                .map(event -> EventMapper.toEventFullDto(
+                        event,
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
 
@@ -126,7 +152,7 @@ public class EventServiceImpl implements EventService {
         Event event = findEventOrThrow(eventId);
         updateEventFieldsByAdmin(event, updateEventRequest);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Transactional
@@ -137,7 +163,7 @@ public class EventServiceImpl implements EventService {
         event.setEventStatus(EventStatus.PUBLISHED);
         event.setPublishedOn(LocalDateTime.now());
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     @Transactional
@@ -147,7 +173,7 @@ public class EventServiceImpl implements EventService {
         checkEventForReject(event);
         event.setEventStatus(EventStatus.CANCELED);
 
-        return EventMapper.toEventFullDto(event, getConfirmedRequests(event.getId()), getViews(event.getId()));
+        return getEventFullDto(event);
     }
 
     private User findUserOrThrow(Long id) {
@@ -311,11 +337,22 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private int getConfirmedRequests(long eventId) {
+    private EventFullDto getEventFullDto(Event event) {
+        return EventMapper.toEventFullDto(
+                event,
+                getConfirmedRequestsByEventId(event.getId()),
+                statService.getStatisticsByEvent(event));
+    }
+
+    private Map<Long, Long> getConfirmedRequestsByEvents(Collection<Event> events) {
+        List<RequestQuantity> requestQuantities = participationRepository.countRequestsForEvents(events);
+
+        return requestQuantities.stream()
+                .collect(Collectors.toMap(RequestQuantity::getRequestId, RequestQuantity::getRequestQuantity));
+    }
+
+    private int getConfirmedRequestsByEventId(long eventId) {
         return participationRepository.countByEventIdAndRequestStatus(eventId, RequestStatus.CONFIRMED);
     }
 
-    private int getViews(long eventId) {
-        return statService.getViews(eventId);
-    }
 }
