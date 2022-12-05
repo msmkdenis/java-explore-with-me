@@ -43,15 +43,20 @@ public class EventServiceImpl implements EventService {
         User initiator = findUserOrThrow(userId);
         Category category = findCategoryOrThrow(newEventDto.getCategory());
         Location location = LocationMapper.toLocation(newEventDto.getLocation());
+
         if (findByLatAndLon(location.getLat(), location.getLon()).isPresent()) {
             location = findByLatAndLon(location.getLat(), location.getLon()).get();
+            Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
+            eventRepository.save(event);
+
+            return getEventFullDto(event);
+        } else {
+            locationRepository.save(location);
+            Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
+            eventRepository.save(event);
+
+            return getEventFullDto(event);
         }
-        Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
-        locationRepository.save(location);
-        eventRepository.save(event);
-
-
-        return getEventFullDto(event);
     }
 
     @Override
@@ -138,7 +143,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventFullDto> getAllEventsByAdmin(AdminEventsRequestParameters parameters) {
         List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
-                        .stream().collect(Collectors.toList());
+                .stream().collect(Collectors.toList());
 
         Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
         Map<Object, Integer> views = statService.getStatisticsByEvents(events);
