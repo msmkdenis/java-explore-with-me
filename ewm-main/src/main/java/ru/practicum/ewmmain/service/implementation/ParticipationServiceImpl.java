@@ -17,7 +17,6 @@ import ru.practicum.ewmmain.service.ParticipationService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +30,6 @@ public class ParticipationServiceImpl implements ParticipationService {
 
     @Override
     public List<ParticipationRequestDto> getByInitiator(Long userId, Long eventId) {
-/*      User user = findUserOrThrow(userId);
-        Event event = findEventOrThrow(eventId);*/
         checkEventInitiator(eventId, userId);
 
         return participationRepository.findAllByEventId(eventId).stream()
@@ -44,7 +41,6 @@ public class ParticipationServiceImpl implements ParticipationService {
     public ParticipationRequestDto approve(Long userId, Long eventId, Long reqId) {
         checkEventInitiator(eventId, userId);
         Event event = findEventOrThrow(eventId);
-        User user = findUserOrThrow(userId);
 
         ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
 
@@ -72,8 +68,6 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Transactional
     @Override
     public ParticipationRequestDto reject(Long userId, Long eventId, Long reqId) {
-        Event event = findEventOrThrow(eventId);
-        User user = findUserOrThrow(userId);
         checkEventInitiator(eventId, userId);
         ParticipationRequest participationRequest = findParticipationRequestOrThrow(reqId);
         participationRequest.setRequestStatus(RequestStatus.REJECTED);
@@ -93,7 +87,15 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     public ParticipationRequestDto addByCurrentUser(long userId, long eventId) {
         Event event = findEventOrThrow(eventId);
+        checkEventStatus(event);
+        checkRequestLimit(event);
+
         User user = findUserOrThrow(userId);
+        if (event.getInitiator().equals(user)) {
+            throw new ForbiddenError(
+                    String.format("User id=%d является иницииатором события id=%d", userId, eventId));
+        }
+
         checkParticipationRequest(event, user);
         ParticipationRequest request = makeNewRequest(user, event);
 
@@ -103,11 +105,27 @@ public class ParticipationServiceImpl implements ParticipationService {
     @Override
     @Transactional
     public ParticipationRequestDto cancel(long userId, long requestId) {
-        ParticipationRequest request = findParticipationRequestOrThrow(requestId);
-        findUserOrThrow(userId);
+        ParticipationRequest request = checkRequestAndRequester(userId, requestId);
         request.setRequestStatus(RequestStatus.CANCELED);
 
         return ParticipationRequestMapper.toParticipationRequestDto(request);
+    }
+
+    private void checkEventStatus(Event event) {
+        if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
+            throw new ForbiddenError(
+                    String.format("Событие id=%d не опубликовано", event.getId()));
+        }
+    }
+
+    private ParticipationRequest checkRequestAndRequester(long userId, long requestId) {
+        ParticipationRequest request = participationRepository.findByIdAndAndRequesterId(requestId, userId);
+        if (request == null) {
+            throw new ForbiddenError(
+                    String.format("User id=%d не является инициатором запроса id=%d", userId, requestId));
+        } else {
+            return request;
+        }
     }
 
     private void checkEventInitiator(@NonNull Long eventId, @NonNull Long userId) {
@@ -117,14 +135,6 @@ public class ParticipationServiceImpl implements ParticipationService {
                     String.format("User id=%d не является инициатором события id=%d", userId, eventId));
         }
     }
-
-/*    private void checkEventInitiator(@NonNull User user, @NonNull Event event) {
-        if (!Objects.equals(user.getId(), event.getInitiator().getId())) {
-            throw new ForbiddenError(
-                    String.format("User id=%d не является инициатором события id=%d", user.getId(), event.getId())
-            );
-        }
-    }*/
 
     private Event findEventOrThrow(Long id) {
         return eventRepository.findById(id).orElseThrow(

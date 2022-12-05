@@ -21,10 +21,7 @@ import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParame
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -46,9 +43,13 @@ public class EventServiceImpl implements EventService {
         User initiator = findUserOrThrow(userId);
         Category category = findCategoryOrThrow(newEventDto.getCategory());
         Location location = LocationMapper.toLocation(newEventDto.getLocation());
+        if (findByLatAndLon(location.getLat(), location.getLon()).isPresent()) {
+            location = findByLatAndLon(location.getLat(), location.getLon()).get();
+        }
         Event event = EventMapper.toEvent(newEventDto, initiator, category, location);
         locationRepository.save(location);
         eventRepository.save(event);
+
 
         return getEventFullDto(event);
     }
@@ -72,14 +73,14 @@ public class EventServiceImpl implements EventService {
 
         if (parameters.getOnlyAvailable()) {
             events = events.stream()
-                    .filter(e -> e.getParticipantLimit() > Math.toIntExact(confirmedRequests.getOrDefault(e.getId(),0L)))
+                    .filter(e -> e.getParticipantLimit() > Math.toIntExact(confirmedRequests.getOrDefault(e.getId(), 0L)))
                     .collect(Collectors.toList());
         }
 
         return events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
-                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
                         views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
@@ -95,7 +96,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
-                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
                         views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
@@ -125,6 +126,10 @@ public class EventServiceImpl implements EventService {
         User user = findUserOrThrow(userId);
         Event event = findEventOrThrow(eventId);
         checkEventInitiator(user, event);
+        if (!event.getEventStatus().equals(EventStatus.PENDING)) {
+            throw new ForbiddenError(
+                    String.format("У события id=%d некорректный статус", event.getId()));
+        }
         event.setEventStatus(EventStatus.CANCELED);
 
         return getEventFullDto(event);
@@ -132,8 +137,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> getAllEventsByAdmin(AdminEventsRequestParameters parameters) {
-        List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable()).
-                stream().collect(Collectors.toList());
+        List<Event> events = eventRepository.findAll(parameters.toSpecification(), parameters.toPageable())
+                        .stream().collect(Collectors.toList());
 
         Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
         Map<Object, Integer> views = statService.getStatisticsByEvents(events);
@@ -141,7 +146,7 @@ public class EventServiceImpl implements EventService {
         return events.stream()
                 .map(event -> EventMapper.toEventFullDto(
                         event,
-                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
                         views.getOrDefault((event.getId()), 0)))
                 .collect(Collectors.toList());
     }
@@ -199,8 +204,7 @@ public class EventServiceImpl implements EventService {
     private void checkEventStatus(Event event) {
         if (!event.getEventStatus().equals(EventStatus.PUBLISHED)) {
             throw new ForbiddenError(
-                    String.format("Событие id=%d не опубликовано", event.getId())
-            );
+                    String.format("Событие id=%d не опубликовано", event.getId()));
         }
     }
 
@@ -353,6 +357,10 @@ public class EventServiceImpl implements EventService {
 
     private int getConfirmedRequestsByEventId(long eventId) {
         return participationRepository.countByEventIdAndRequestStatus(eventId, RequestStatus.CONFIRMED);
+    }
+
+    private Optional<Location> findByLatAndLon(Float lat, Float lon) {
+        return locationRepository.findLocationByLatAndLon(lat, lon);
     }
 
 }

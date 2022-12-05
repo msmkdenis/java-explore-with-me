@@ -34,4 +34,7 @@ public interface ParticipationRepository extends JpaRepository<ParticipationRequ
 
     @Query("select (count(r) > 0) from ParticipationRequest r where r.event.id = ?1 and r.requester.id = ?2")
     boolean findByEventAndRequester(Long eventId, Long requesterId);
+
+    @Query("select r from ParticipationRequest r where r.id = ?1 and r.requester.id = ?2")
+    ParticipationRequest findByIdAndAndRequesterId(Long requestId, Long requesterId);
 }
