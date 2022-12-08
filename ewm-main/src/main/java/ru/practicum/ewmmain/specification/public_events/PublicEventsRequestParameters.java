@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.specification.publicEvents;
+package ru.practicum.ewmmain.specification.public_events;
 
 import lombok.*;
 import org.springframework.data.domain.PageRequest;

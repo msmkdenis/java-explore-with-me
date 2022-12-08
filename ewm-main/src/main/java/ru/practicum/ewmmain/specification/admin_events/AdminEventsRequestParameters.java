@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.specification.adminEvents;
+package ru.practicum.ewmmain.specification.admin_events;
 
 import lombok.Getter;
 import lombok.Setter;

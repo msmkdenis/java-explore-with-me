@@ -16,8 +16,8 @@ import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.exception.ForbiddenError;
 import ru.practicum.ewmmain.repository.*;
 import ru.practicum.ewmmain.service.EventService;
-import ru.practicum.ewmmain.specification.adminEvents.AdminEventsRequestParameters;
-import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParameters;
+import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
+import ru.practicum.ewmmain.specification.public_events.PublicEventsRequestParameters;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
