@@ -2,6 +2,7 @@ package ru.practicum.ewmmain.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -12,14 +13,16 @@ import ru.practicum.ewmmain.dto.comment.NewCommentDto;
 import ru.practicum.ewmmain.dto.mapper.CommentMapper;
 import ru.practicum.ewmmain.entity.*;
 import ru.practicum.ewmmain.exception.EntityNotFoundException;
+import ru.practicum.ewmmain.exception.ForbiddenError;
 import ru.practicum.ewmmain.repository.CommentRepository;
 import ru.practicum.ewmmain.repository.EventRepository;
 import ru.practicum.ewmmain.repository.UserRepository;
 import ru.practicum.ewmmain.service.CommentService;
+import ru.practicum.ewmmain.service.EventService;
 import ru.practicum.ewmmain.specification.admin_comments.AdminCommentRequestParameters;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,13 +33,16 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
+    private final EventService eventService;
 
     @Override
     @Transactional
     public CommentShortDto add(Long userId, NewCommentDto newCommentDto) {
+        checkCommentExistence(userId, newCommentDto.getEventId());
         User author = findUserOrThrow(userId);
         Event event = findEventOrThrow(newCommentDto.getEventId());
         Comment comment = commentRepository.save(CommentMapper.toComment(newCommentDto, author, event));
+        comment.setStatus(CommentStatus.PENDING);
         return CommentMapper.toCommentShortDto(comment);
     }
 
@@ -48,6 +54,7 @@ public class CommentServiceImpl implements CommentService {
         commentToUpdate.setText(newCommentDto.getText());
         commentToUpdate.setEventScore(newCommentDto.getScore());
         commentToUpdate.setUpdated(LocalDateTime.now());
+        commentToUpdate.setStatus(CommentStatus.PENDING);
 
         return CommentMapper.toCommentShortDto(commentToUpdate);
     }
@@ -61,11 +68,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<CommentShortDto> getAllByEvent(Long eventId, int from, int size) {
-        checkAndFindEvent(eventId);
+        findEventOrThrow(eventId);
         Page<Comment> comments = commentRepository.findAllByEventId(eventId, PageRequest.of(getPageNumber(from, size), size));
         return comments.stream()
                 .map(CommentMapper::toCommentShortDto)
-                .filter(commentShortDto -> commentShortDto.getStatus().equals(CommentStatus.MODERATED))
+                .filter(commentShortDto -> commentShortDto.getStatus().equals(CommentStatus.PUBLISHED))
                 .collect(Collectors.toList());
     }
 
@@ -119,7 +126,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public CommentFullDto publish(Long commentId) {
         Comment comment = findCommentOrThrow(commentId);
-        comment.setStatus(CommentStatus.MODERATED);
+        comment.setStatus(CommentStatus.PUBLISHED);
         comment.setModerated(LocalDateTime.now());
         return CommentMapper.toCommentFullDto(comment);
     }
@@ -133,6 +140,18 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toCommentFullDto(comment);
     }
 
+    @Override
+    public Map<Long, Double> getAllByPublicUserWithRating() {
+        List<EventRating> eventRating = commentRepository.countEventRating();
+        Map<Long, Double> rating = eventRating.stream()
+                .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));
+        Map<Long, Double> ratingToApi = new HashMap<>(Collections.emptyMap());
+        for(Map.Entry<Long, Double> pair : rating.entrySet()) {
+            ratingToApi.put(pair.getKey(), Precision.round(pair.getValue(),2));
+        }
+        return ratingToApi;
+    }
+
     private User findUserOrThrow(Long id) {
         return userRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Пользователь id=%d не найден!", id)));
@@ -143,9 +162,11 @@ public class CommentServiceImpl implements CommentService {
                 () -> new EntityNotFoundException(String.format("Event id=%d не найден!", id)));
     }
 
-    private Event checkAndFindEvent(Long id) {
-        return eventRepository.findEventByIdAndEventStatus(id, EventStatus.PUBLISHED).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Event id=%d не найден!", id)));
+    private void checkCommentExistence(Long authorId, Long eventId) {
+        Optional<Comment> comment = commentRepository.findCommentByIdAndAuthorId(authorId, eventId);
+        if (comment.isPresent()) {
+            throw new ForbiddenError(String.format("Пользователь id=%d уже оставил отзыв на событие id=%d", authorId, eventId));
+        }
     }
 
     private Comment findCommentOrThrow(Long id) {

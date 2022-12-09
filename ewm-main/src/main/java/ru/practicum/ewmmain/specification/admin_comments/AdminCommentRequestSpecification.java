@@ -3,14 +3,11 @@ package ru.practicum.ewmmain.specification.admin_comments;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.ewmmain.entity.Comment;
-import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;

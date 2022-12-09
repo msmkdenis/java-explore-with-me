@@ -7,10 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.practicum.ewmmain.entity.CommentStatus;
-import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.entity.EventStatus;
-import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestSpecification;
-import ru.practicum.ewmmain.specification.public_events.EventSortType;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;

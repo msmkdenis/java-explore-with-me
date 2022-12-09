@@ -4,12 +4,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmain.dto.comment.CommentFullDto;
 import ru.practicum.ewmmain.dto.comment.CommentShortDto;
 import ru.practicum.ewmmain.dto.comment.NewCommentDto;
-import ru.practicum.ewmmain.dto.event.EventFullDto;
-import ru.practicum.ewmmain.entity.Comment;
 import ru.practicum.ewmmain.specification.admin_comments.AdminCommentRequestParameters;
-import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CommentService {
     CommentShortDto add(Long userId, NewCommentDto newCommentDto);
@@ -40,4 +38,6 @@ public interface CommentService {
 
     @Transactional
     CommentFullDto reject(Long commentId);
+
+    Map<Long, Double> getAllByPublicUserWithRating();
 }
