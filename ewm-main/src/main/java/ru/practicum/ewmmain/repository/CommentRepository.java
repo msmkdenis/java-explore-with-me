@@ -18,7 +18,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
 
     Page<Comment> findAllByAuthorId(Long userId, Pageable pageRequest);
 
-    Page<Comment> findAllByEventId(Long eventId, Pageable pageRequest);
+    @Query("select c from Comment c where c.event.id=?1 and c.status=?2")
+    Page<Comment> findAllByEventId(Long eventId, CommentStatus status, Pageable pageRequest);
+
+    @Query("select c from Comment c where c.event.id=?1")
+    Page<Comment> findAllByEventIdAdmin(Long eventId, Pageable pageRequest);
 
     Optional<Comment> findCommentByIdAndAuthorId(Long commentId, Long authorId);
 

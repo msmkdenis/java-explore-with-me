@@ -7,7 +7,6 @@ import ru.practicum.ewmmain.dto.comment.NewCommentDto;
 import ru.practicum.ewmmain.specification.admin_comments.AdminCommentRequestParameters;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CommentService {
     CommentShortDto add(Long userId, NewCommentDto newCommentDto);
@@ -31,13 +30,11 @@ public interface CommentService {
 
     List<CommentFullDto> getAllByUserAdmin(Long userId, int from, int size);
 
-    List<CommentFullDto> getAllFiltered(AdminCommentRequestParameters parameters);
+    List<CommentFullDto> getAllFilteredAdmin(AdminCommentRequestParameters parameters);
 
     @Transactional
     CommentFullDto publish(Long commentId);
 
     @Transactional
     CommentFullDto reject(Long commentId);
-
-    Map<Long, Double> getAllByPublicUserWithRating();
 }

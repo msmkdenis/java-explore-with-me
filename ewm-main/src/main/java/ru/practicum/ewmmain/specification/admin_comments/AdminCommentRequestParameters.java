@@ -20,9 +20,8 @@ public class AdminCommentRequestParameters {
     private List<Long> authors;
     private List<CommentStatus> states;
     private List<Long> events;
-    private String created;
-    private String updated;
-    private String moderated;
+    private String rangeStart;
+    private String rangeEnd;
     private Integer minScore;
     private Integer maxScore;
     private String text;

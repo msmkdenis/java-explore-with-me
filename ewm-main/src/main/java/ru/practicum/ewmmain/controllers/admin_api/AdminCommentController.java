@@ -24,7 +24,7 @@ public class AdminCommentController {
     @GetMapping
     public List<CommentFullDto> getAllFiltered(AdminCommentRequestParameters parameters) {
         log.info("AdminCommentController GET getAllFiltered parameters: {}", parameters);
-        return commentService.getAllFiltered(parameters);
+        return commentService.getAllFilteredAdmin(parameters);
     }
 
     @GetMapping("/user/{userId}")

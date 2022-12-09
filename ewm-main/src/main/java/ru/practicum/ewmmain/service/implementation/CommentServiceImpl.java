@@ -2,7 +2,6 @@ package ru.practicum.ewmmain.service.implementation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.math3.util.Precision;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,8 @@ import ru.practicum.ewmmain.service.CommentService;
 import ru.practicum.ewmmain.specification.admin_comments.AdminCommentRequestParameters;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,10 +70,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentShortDto> getAllByEvent(Long eventId, int from, int size) {
         findEventOrThrow(eventId);
-        Page<Comment> comments = commentRepository.findAllByEventId(eventId, PageRequest.of(getPageNumber(from, size), size));
+        Page<Comment> comments = commentRepository.findAllByEventId(eventId, CommentStatus.PUBLISHED, PageRequest.of(getPageNumber(from, size), size));
         return comments.stream()
                 .map(CommentMapper::toCommentShortDto)
-                .filter(commentShortDto -> commentShortDto.getStatus().equals(CommentStatus.PUBLISHED))
                 .collect(Collectors.toList());
     }
 
@@ -98,8 +97,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentFullDto> getAllFiltered(AdminCommentRequestParameters parameters) {
-        log.info("Parameters {}", parameters);
+    public List<CommentFullDto> getAllFilteredAdmin(AdminCommentRequestParameters parameters) {
         List<Comment> comments = commentRepository.findAll(parameters.toSpecification(), parameters.toPageable())
                 .stream().collect(Collectors.toList());
         return comments.stream().map(CommentMapper::toCommentFullDto).collect(Collectors.toList());
@@ -108,7 +106,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentFullDto> getAllByEventAdmin(Long eventId, int from, int size) {
         findEventOrThrow(eventId);
-        return commentRepository.findAllByEventId(eventId, PageRequest.of(getPageNumber(from, size), size))
+        return commentRepository.findAllByEventIdAdmin(eventId, PageRequest.of(getPageNumber(from, size), size))
                 .stream()
                 .map(CommentMapper::toCommentFullDto)
                 .collect(Collectors.toList());
@@ -139,18 +137,6 @@ public class CommentServiceImpl implements CommentService {
         comment.setStatus(CommentStatus.REJECTED);
         comment.setModerated(LocalDateTime.now());
         return CommentMapper.toCommentFullDto(comment);
-    }
-
-    @Override
-    public Map<Long, Double> getAllByPublicUserWithRating() {
-        List<EventRating> eventRating = commentRepository.countEventRating();
-        Map<Long, Double> rating = eventRating.stream()
-                .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));
-        Map<Long, Double> ratingToApi = new HashMap<>(Collections.emptyMap());
-        for (Map.Entry<Long, Double> pair : rating.entrySet()) {
-            ratingToApi.put(pair.getKey(), Precision.round(pair.getValue(),2));
-        }
-        return ratingToApi;
     }
 
     private User findUserOrThrow(Long id) {

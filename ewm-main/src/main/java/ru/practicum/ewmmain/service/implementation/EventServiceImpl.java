@@ -430,7 +430,7 @@ public class EventServiceImpl implements EventService {
                 getRatingForEvent(event));
     }
 
-    Double getRatingForEvent(Event event) {
+    private Double getRatingForEvent(Event event) {
         Map<Long, Double> ratings = getRatings();
         if (ratings.get(event.getId()) == null) {
             return null;
@@ -439,7 +439,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    List<CommentFullDto> getComments(Event event) {
+    private List<CommentFullDto> getComments(Event event) {
         if (!(event.getComments() == null)) {
             return event.getComments().stream().map(CommentMapper::toCommentFullDto).collect(Collectors.toList());
         } else {
@@ -447,7 +447,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    Map<Long, Double> getRatings() {
+    private Map<Long, Double> getRatings() {
         List<EventRating> eventRating = commentRepository.countEventRating();
         Map<Long, Double> rating = eventRating.stream()
                 .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));

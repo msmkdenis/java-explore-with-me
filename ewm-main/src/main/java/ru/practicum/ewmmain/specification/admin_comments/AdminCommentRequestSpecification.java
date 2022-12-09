@@ -8,6 +8,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,20 @@ public class AdminCommentRequestSpecification implements Specification<Comment> 
 
         if (parameters.getEvents() != null && !parameters.getEvents().isEmpty()) {
             predicates.add(root.get("event").get("id").in(parameters.getEvents()));
+        }
+
+        if (parameters.getRangeStart() != null && !parameters.getRangeStart().isEmpty()) {
+            predicates.add(cb.greaterThanOrEqualTo(
+                    root.get("created"),
+                    LocalDateTime.parse(parameters.getRangeStart(), DATE_TIME_FORMATTER))
+            );
+        }
+
+        if (parameters.getRangeEnd() != null && !parameters.getRangeEnd().isEmpty()) {
+            predicates.add(cb.lessThanOrEqualTo(
+                    root.get("created"),
+                    LocalDateTime.parse(parameters.getRangeEnd(), DATE_TIME_FORMATTER))
+            );
         }
 
         if (parameters.getMinScore() != null) {
