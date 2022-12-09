@@ -3,30 +3,29 @@ package ru.practicum.ewmmain.service.implementation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmain.client.StatService;
+import ru.practicum.ewmmain.dto.comment.CommentShortDto;
 import ru.practicum.ewmmain.dto.compilation.CompilationDto;
 import ru.practicum.ewmmain.dto.compilation.NewCompilationDto;
 import ru.practicum.ewmmain.dto.event.EventShortDto;
+import ru.practicum.ewmmain.dto.mapper.CommentMapper;
 import ru.practicum.ewmmain.dto.mapper.CompilationMapper;
 import ru.practicum.ewmmain.dto.mapper.EventMapper;
-import ru.practicum.ewmmain.entity.Compilation;
-import ru.practicum.ewmmain.entity.Event;
-import ru.practicum.ewmmain.entity.RequestQuantity;
+import ru.practicum.ewmmain.entity.*;
 import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.exception.ForbiddenError;
+import ru.practicum.ewmmain.repository.CommentRepository;
 import ru.practicum.ewmmain.repository.CompilationRepository;
 import ru.practicum.ewmmain.repository.EventRepository;
 import ru.practicum.ewmmain.repository.ParticipationRepository;
 import ru.practicum.ewmmain.service.CompilationService;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
@@ -40,6 +39,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final EventRepository eventRepository;
     private final ParticipationRepository participationRepository;
     private final StatService statService;
+    private final CommentRepository commentRepository;
 
     @Override
     public List<CompilationDto> getAll(Boolean pinned, int from, int size) {
@@ -154,12 +154,33 @@ public class CompilationServiceImpl implements CompilationService {
 
         Set<Event> events = compilation.getEvents();
 
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findPublishedByEvents(CommentStatus.PUBLISHED, eventIds);
+        List<CommentShortDto> commentShortDto = comments.stream()
+                .map(CommentMapper::toCommentShortDto)
+                .collect(Collectors.toList());
+
+        Map<Long, Double> ratingToApi = getRatings();
+
         return events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
-                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(),0L)),
-                        views.getOrDefault((event.getId()), 0)))
+                        Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
+                        views.getOrDefault((event.getId()), 0),
+                        commentShortDto.stream().filter(c -> c.getEventId() == event.getId()).collect(Collectors.toList()),
+                        ratingToApi.get(event.getId())))
                 .collect(Collectors.toSet());
+    }
+
+    Map<Long, Double> getRatings() {
+        List<EventRating> eventRating = commentRepository.countEventRating();
+        Map<Long, Double> rating = eventRating.stream()
+                .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));
+        Map<Long, Double> ratingToApi = new HashMap<>(Collections.emptyMap());
+        for (Map.Entry<Long, Double> pair : rating.entrySet()) {
+            ratingToApi.put(pair.getKey(), Precision.round(pair.getValue(), 2));
+        }
+        return ratingToApi;
     }
 
     private Map<Long, Long> getConfirmedRequests(Collection<Event> events) {

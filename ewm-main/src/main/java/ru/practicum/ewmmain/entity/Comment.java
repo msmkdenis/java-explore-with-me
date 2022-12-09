@@ -20,11 +20,11 @@ public class Comment {
     @Column(name = "text")
     private String text;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
@@ -37,6 +37,7 @@ public class Comment {
     @Column(name = "moderated")
     private LocalDateTime moderated;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private CommentStatus status;
 

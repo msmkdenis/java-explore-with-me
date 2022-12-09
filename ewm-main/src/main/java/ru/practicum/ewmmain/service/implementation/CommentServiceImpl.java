@@ -18,7 +18,6 @@ import ru.practicum.ewmmain.repository.CommentRepository;
 import ru.practicum.ewmmain.repository.EventRepository;
 import ru.practicum.ewmmain.repository.UserRepository;
 import ru.practicum.ewmmain.service.CommentService;
-import ru.practicum.ewmmain.service.EventService;
 import ru.practicum.ewmmain.specification.admin_comments.AdminCommentRequestParameters;
 
 import java.time.LocalDateTime;
@@ -33,7 +32,6 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final EventService eventService;
 
     @Override
     @Transactional
@@ -41,6 +39,9 @@ public class CommentServiceImpl implements CommentService {
         checkCommentExistence(userId, newCommentDto.getEventId());
         User author = findUserOrThrow(userId);
         Event event = findEventOrThrow(newCommentDto.getEventId());
+        if (!(event.getEventStatus().equals(EventStatus.PUBLISHED))) {
+            throw new ForbiddenError(String.format("Событие id=%d еще не опубликовано", event.getId()));
+        }
         Comment comment = commentRepository.save(CommentMapper.toComment(newCommentDto, author, event));
         comment.setStatus(CommentStatus.PENDING);
         return CommentMapper.toCommentShortDto(comment);
@@ -146,7 +147,7 @@ public class CommentServiceImpl implements CommentService {
         Map<Long, Double> rating = eventRating.stream()
                 .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));
         Map<Long, Double> ratingToApi = new HashMap<>(Collections.emptyMap());
-        for(Map.Entry<Long, Double> pair : rating.entrySet()) {
+        for (Map.Entry<Long, Double> pair : rating.entrySet()) {
             ratingToApi.put(pair.getKey(), Precision.round(pair.getValue(),2));
         }
         return ratingToApi;

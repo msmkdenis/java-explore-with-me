@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.ewmmain.entity.Comment;
+import ru.practicum.ewmmain.entity.CommentStatus;
 import ru.practicum.ewmmain.entity.EventRating;
 
 import java.util.List;
@@ -22,8 +23,14 @@ public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpec
     Optional<Comment> findCommentByIdAndAuthorId(Long commentId, Long authorId);
 
     @Query(value = "select event_id as eventId, AVG(score) as eventScore from " +
-            "(select event_id, score from comments where status=1) comments group by event_id", nativeQuery = true)
+            "(select event_id, score from comments where status like 'PUBLISHED') comments group by event_id", nativeQuery = true)
     List<EventRating> countEventRating();
+
+    @Query("select c from Comment c where c.event.id in ?1")
+    List<Comment> findAllByEvents(List<Long> ids);
+
+    @Query("select c from Comment c where c.status=?1 and c.event.id in ?2")
+    List<Comment> findPublishedByEvents(CommentStatus status, List<Long> ids);
 
     void deleteAllByAuthorId(Long authorId);
 }

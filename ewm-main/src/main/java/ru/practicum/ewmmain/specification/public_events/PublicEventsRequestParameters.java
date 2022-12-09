@@ -30,6 +30,12 @@ public class PublicEventsRequestParameters {
 
     private EventSortType sort;
 
+    private Boolean sortByRating;
+
+    private Integer lowestRating;
+
+    private Integer highestRating;
+
     @Positive
     private int from;
 

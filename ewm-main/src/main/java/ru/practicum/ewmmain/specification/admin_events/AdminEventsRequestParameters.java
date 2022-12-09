@@ -26,6 +26,12 @@ public class AdminEventsRequestParameters {
 
     private String rangeEnd;
 
+    private Boolean sortByRating;
+
+    private Integer lowestRating;
+
+    private Integer highestRating;
+
     @Positive
     private int from;
 
