@@ -3,8 +3,8 @@ package ru.practicum.ewmmain.service;
 import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmain.dto.event.*;
-import ru.practicum.ewmmain.specification.adminEvents.AdminEventsRequestParameters;
-import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParameters;
+import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
+import ru.practicum.ewmmain.specification.public_events.PublicEventsRequestParameters;
 
 import java.util.List;
 

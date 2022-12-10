@@ -29,7 +29,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public CategoryDto add(NewCategoryDto newCategoryDto) {
-        //checkNameInRepository(newCategoryDto.getName());
         Category newCategory = CategoryMapper.toCategory(newCategoryDto);
         newCategory = categoryRepository.save(newCategory);
 
@@ -39,7 +38,6 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     @Override
     public CategoryDto update(CategoryDto categoryDto) {
-        //checkNameInRepository(categoryDto.getName());
         Category category = findCategoryOrThrow(categoryDto.getId());
         category.setName(categoryDto.getName());
 
@@ -78,12 +76,6 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ConflictError(String.format("У категории id=%d есть связанные события!", catId));
         }
     }
-
-/*    private void checkNameInRepository(String name) {
-        if (categoryRepository.existsByName(name)) {
-            throw new ConflictError(String.format("Имя категории = '%s' уже занято ", name));
-        }
-    }*/
 
     private int getPageNumber(int from, int size) {
         return from / size;

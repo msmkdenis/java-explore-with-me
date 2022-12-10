@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.lang.Nullable;
+import ru.practicum.ewmmain.util.Constants;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
@@ -23,7 +24,7 @@ public class UpdateEventRequest {
     private Long category;
     @Size(max = 7000)
     private String description;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = Constants.datePattern)
     @Future
     @Nullable
     private LocalDateTime eventDate;

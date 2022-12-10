@@ -2,9 +2,12 @@ package ru.practicum.ewmmain.dto.event;
 
 import lombok.*;
 import ru.practicum.ewmmain.dto.category.CategoryDto;
+import ru.practicum.ewmmain.dto.comment.CommentFullDto;
 import ru.practicum.ewmmain.dto.user.UserShortDto;
 import ru.practicum.ewmmain.entity.EventStatus;
 import ru.practicum.ewmmain.entity.Location;
+
+import java.util.List;
 
 
 @Getter
@@ -29,4 +32,6 @@ public class EventFullDto {
     private EventStatus state;
     private String title;
     private int views;
+    private List<CommentFullDto> comments;
+    private Double eventRating;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.specification.adminEvents;
+package ru.practicum.ewmmain.specification.admin_events;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +25,12 @@ public class AdminEventsRequestParameters {
     private String rangeStart;
 
     private String rangeEnd;
+
+    private Boolean sortByRating;
+
+    private Integer lowestRating;
+
+    private Integer highestRating;
 
     @Positive
     private int from;

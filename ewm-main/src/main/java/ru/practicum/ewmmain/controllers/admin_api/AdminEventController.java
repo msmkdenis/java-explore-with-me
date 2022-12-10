@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewmmain.dto.event.AdminUpdateEventRequest;
 import ru.practicum.ewmmain.dto.event.EventFullDto;
 import ru.practicum.ewmmain.service.EventService;
-import ru.practicum.ewmmain.specification.adminEvents.AdminEventsRequestParameters;
+import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
 
 import java.util.List;
 
