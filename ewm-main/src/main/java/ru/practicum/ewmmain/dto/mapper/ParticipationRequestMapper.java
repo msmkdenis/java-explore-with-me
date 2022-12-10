@@ -4,13 +4,14 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.ewmmain.dto.participationRequest.ParticipationRequestDto;
 import ru.practicum.ewmmain.entity.ParticipationRequest;
 import ru.practicum.ewmmain.entity.RequestStatus;
+import ru.practicum.ewmmain.util.Constants;
 
 import java.time.format.DateTimeFormatter;
 
 @UtilityClass
 public class ParticipationRequestMapper {
 
-    public static final String DATE_TIME_STRING = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_TIME_STRING = Constants.datePattern;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_STRING);
 
     public static ParticipationRequestDto toParticipationRequestDto(ParticipationRequest participationRequest) {

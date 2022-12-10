@@ -3,6 +3,7 @@ package ru.practicum.ewmmain.specification.admin_comments;
 import lombok.AllArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.ewmmain.entity.Comment;
+import ru.practicum.ewmmain.util.Constants;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AdminCommentRequestSpecification implements Specification<Comment> {
 
-    public static final String DATE_TIME_STRING = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATE_TIME_STRING = Constants.datePattern;
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_STRING);
 
     private AdminCommentRequestParameters parameters;

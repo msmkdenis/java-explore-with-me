@@ -39,9 +39,7 @@ public class CommentServiceImpl implements CommentService {
         checkCommentExistence(userId, newCommentDto.getEventId());
         User author = findUserOrThrow(userId);
         Event event = findEventOrThrow(newCommentDto.getEventId());
-        if (!(event.getEventStatus().equals(EventStatus.PUBLISHED))) {
-            throw new ForbiddenError(String.format("Событие id=%d еще не опубликовано", event.getId()));
-        }
+        validateEventForComment(event);
         Comment comment = commentRepository.save(CommentMapper.toComment(newCommentDto, author, event));
         comment.setStatus(CommentStatus.PENDING);
         return CommentMapper.toCommentShortDto(comment);
@@ -137,6 +135,12 @@ public class CommentServiceImpl implements CommentService {
         comment.setStatus(CommentStatus.REJECTED);
         comment.setModerated(LocalDateTime.now());
         return CommentMapper.toCommentFullDto(comment);
+    }
+
+    private void validateEventForComment(Event event) {
+        if (!(event.getEventStatus().equals(EventStatus.PUBLISHED))) {
+            throw new ForbiddenError(String.format("Событие id=%d еще не опубликовано", event.getId()));
+        }
     }
 
     private User findUserOrThrow(Long id) {
