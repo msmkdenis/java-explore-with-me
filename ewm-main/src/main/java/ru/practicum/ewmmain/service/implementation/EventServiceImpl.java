@@ -3,12 +3,16 @@ package ru.practicum.ewmmain.service.implementation;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.math3.util.Precision;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewmmain.client.StatService;
+import ru.practicum.ewmmain.dto.comment.CommentFullDto;
+import ru.practicum.ewmmain.dto.comment.CommentShortDto;
 import ru.practicum.ewmmain.dto.event.*;
 import ru.practicum.ewmmain.dto.location.LocationDto;
+import ru.practicum.ewmmain.dto.mapper.CommentMapper;
 import ru.practicum.ewmmain.dto.mapper.EventMapper;
 import ru.practicum.ewmmain.dto.mapper.LocationMapper;
 import ru.practicum.ewmmain.entity.*;
@@ -16,8 +20,8 @@ import ru.practicum.ewmmain.exception.EntityNotFoundException;
 import ru.practicum.ewmmain.exception.ForbiddenError;
 import ru.practicum.ewmmain.repository.*;
 import ru.practicum.ewmmain.service.EventService;
-import ru.practicum.ewmmain.specification.adminEvents.AdminEventsRequestParameters;
-import ru.practicum.ewmmain.specification.publicEvents.PublicEventsRequestParameters;
+import ru.practicum.ewmmain.specification.admin_events.AdminEventsRequestParameters;
+import ru.practicum.ewmmain.specification.public_events.PublicEventsRequestParameters;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,6 +39,7 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final ParticipationRepository participationRepository;
     private final StatService statService;
+    private final CommentRepository commentRepository;
 
     @Transactional
     @Override
@@ -82,12 +87,42 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        return events.stream()
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findPublishedByEvents(CommentStatus.PUBLISHED, eventIds);
+        List<CommentShortDto> commentShortDto = comments.stream()
+                .map(CommentMapper::toCommentShortDto)
+                .collect(Collectors.toList());
+
+        Map<Long, Double> ratingToApi = getRatings();
+
+        List<EventShortDto> eventShortDto = events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
                         Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
-                        views.getOrDefault((event.getId()), 0)))
+                        views.getOrDefault((event.getId()), 0),
+                        commentShortDto.stream().filter(c -> c.getEventId() == event.getId()).collect(Collectors.toList()),
+                        ratingToApi.get(event.getId())))
                 .collect(Collectors.toList());
+
+        if (!(parameters.getLowestRating() == null)) {
+            eventShortDto = eventShortDto.stream()
+                    .filter(c -> (c.getEventRating() != null ? c.getEventRating() : 0) >= parameters.getLowestRating())
+                    .collect(Collectors.toList());
+        }
+
+        if (!(parameters.getHighestRating() == null)) {
+            eventShortDto = eventShortDto.stream()
+                    .filter(c -> (c.getEventRating() != null ? c.getEventRating() : 0) <= parameters.getHighestRating())
+                    .collect(Collectors.toList());
+        }
+
+        if (parameters.getSortByRating() == Boolean.TRUE) {
+            eventShortDto = eventShortDto.stream()
+                    .sorted(Comparator.comparing(EventShortDto::getEventRating, Comparator.nullsFirst(Comparator.naturalOrder())).reversed())
+                    .collect(Collectors.toList());
+        }
+
+        return eventShortDto;
     }
 
     @Override
@@ -98,11 +133,21 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
         Map<Object, Integer> views = statService.getStatisticsByEvents(events);
 
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findPublishedByEvents(CommentStatus.PUBLISHED, eventIds);
+        List<CommentShortDto> commentShortDto = comments.stream()
+                .map(CommentMapper::toCommentShortDto)
+                .collect(Collectors.toList());
+
+        Map<Long, Double> ratingToApi = getRatings();
+
         return events.stream()
                 .map(event -> EventMapper.toEventShortDto(
                         event,
                         Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
-                        views.getOrDefault((event.getId()), 0)))
+                        views.getOrDefault((event.getId()), 0),
+                        commentShortDto.stream().filter(c -> c.getEventId() == event.getId()).collect(Collectors.toList()),
+                        ratingToApi.get(event.getId())))
                 .collect(Collectors.toList());
     }
 
@@ -148,12 +193,42 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> confirmedRequests = getConfirmedRequestsByEvents(events);
         Map<Object, Integer> views = statService.getStatisticsByEvents(events);
 
-        return events.stream()
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Comment> comments = commentRepository.findAllByEvents(eventIds);
+        List<CommentFullDto> commentFullDto = comments.stream()
+                .map(CommentMapper::toCommentFullDto)
+                .collect(Collectors.toList());
+
+        Map<Long, Double> ratingToApi = getRatings();
+
+        List<EventFullDto> eventFullDto = events.stream()
                 .map(event -> EventMapper.toEventFullDto(
                         event,
                         Math.toIntExact(confirmedRequests.getOrDefault(event.getId(), 0L)),
-                        views.getOrDefault((event.getId()), 0)))
+                        views.getOrDefault((event.getId()), 0),
+                        commentFullDto.stream().filter(c -> c.getEventId() == event.getId()).collect(Collectors.toList()),
+                        ratingToApi.get(event.getId())))
                 .collect(Collectors.toList());
+
+        if (!(parameters.getLowestRating() == null)) {
+            eventFullDto = eventFullDto.stream()
+                    .filter(c -> (c.getEventRating() != null ? c.getEventRating() : 0) >= parameters.getLowestRating())
+                    .collect(Collectors.toList());
+        }
+
+        if (!(parameters.getHighestRating() == null)) {
+            eventFullDto = eventFullDto.stream()
+                    .filter(c -> (c.getEventRating() != null ? c.getEventRating() : 0) <= parameters.getHighestRating())
+                    .collect(Collectors.toList());
+        }
+
+        if (parameters.getSortByRating() == Boolean.TRUE) {
+            eventFullDto = eventFullDto.stream()
+                    .sorted(Comparator.comparing(EventFullDto::getEventRating, Comparator.nullsFirst(Comparator.naturalOrder())).reversed())
+                    .collect(Collectors.toList());
+        }
+
+        return eventFullDto;
     }
 
     @Transactional
@@ -350,8 +425,39 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(
                 event,
                 getConfirmedRequestsByEventId(event.getId()),
-                statService.getStatisticsByEvent(event));
+                statService.getStatisticsByEvent(event),
+                getComments(event),
+                getRatingForEvent(event));
     }
+
+    private Double getRatingForEvent(Event event) {
+        Map<Long, Double> ratings = getRatings();
+        if (ratings.get(event.getId()) == null) {
+            return null;
+        } else {
+            return ratings.get(event.getId());
+        }
+    }
+
+    private List<CommentFullDto> getComments(Event event) {
+        if (!(event.getComments() == null)) {
+            return event.getComments().stream().map(CommentMapper::toCommentFullDto).collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Map<Long, Double> getRatings() {
+        List<EventRating> eventRating = commentRepository.countEventRating();
+        Map<Long, Double> rating = eventRating.stream()
+                .collect(Collectors.toMap(EventRating::getEventId, EventRating::getEventScore));
+        Map<Long, Double> ratingToApi = new HashMap<>(Collections.emptyMap());
+        for (Map.Entry<Long, Double> pair : rating.entrySet()) {
+            ratingToApi.put(pair.getKey(), Precision.round(pair.getValue(), 2));
+        }
+        return ratingToApi;
+    }
+
 
     private Map<Long, Long> getConfirmedRequestsByEvents(Collection<Event> events) {
         List<RequestQuantity> requestQuantities = participationRepository.countRequestsForEvents(events);

@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -63,4 +64,8 @@ public class Event {
 
     @Column(name = "title", length = 100, nullable = false)
     private String title;
+
+    @OneToMany
+    @JoinColumn(name = "event_id")
+    private List<Comment> comments;
 }

@@ -1,4 +1,4 @@
-package ru.practicum.ewmmain.specification.publicEvents;
+package ru.practicum.ewmmain.specification.public_events;
 
 import lombok.*;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +29,12 @@ public class PublicEventsRequestParameters {
     private Boolean onlyAvailable;
 
     private EventSortType sort;
+
+    private Boolean sortByRating;
+
+    private Integer lowestRating;
+
+    private Integer highestRating;
 
     @Positive
     private int from;
